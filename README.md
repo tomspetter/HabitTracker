@@ -4,6 +4,8 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
 
 > **Note:** This is a work in progress and currently a proof of concept. Feel free to use and modify as needed!
 
+![Habit Tracker Preview](images/preview.png)
+
 ## Features
 
 - **Year-at-a-Glance View**: GitHub-style contribution graph showing your entire year of habits
