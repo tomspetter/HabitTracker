@@ -85,23 +85,27 @@
 
             return (
                 <div className="min-h-screen bg-[#0d1117] flex items-center justify-center p-8">
-                    <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-8 w-full max-w-md">
+                    <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-8 w-full max-w-md" role="main">
                         <h1 className="text-3xl font-bold text-white mb-6 text-center">Habit Tracker 2025</h1>
-                        <form onSubmit={handleSubmit}>
+                        <form onSubmit={handleSubmit} aria-label="Login form">
                             <div className="mb-4">
-                                <label className="block text-gray-300 mb-2">Password</label>
+                                <label htmlFor="password-input" className="block text-gray-300 mb-2">Password</label>
                                 <input
+                                    id="password-input"
                                     type="password"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff]"
+                                    className="w-full px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
                                     placeholder="Enter password"
+                                    aria-required="true"
+                                    aria-invalid={error ? 'true' : 'false'}
+                                    aria-describedby={error ? 'password-error' : undefined}
                                 />
                             </div>
-                            {error && <p className="text-red-400 mb-4">{error}</p>}
+                            {error && <p id="password-error" className="text-red-400 mb-4" role="alert">{error}</p>}
                             <button
                                 type="submit"
-                                className="w-full px-4 py-2 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors"
+                                className="w-full px-4 py-2 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043]"
                             >
                                 Login
                             </button>
@@ -371,51 +375,59 @@
             return (
                 <div className="min-h-screen bg-[#0d1117] text-gray-300 p-8 flex justify-center">
                     <div className="w-fit">
-                        <div className="flex justify-between items-start mb-8">
+                        <header className="flex justify-between items-start mb-8">
                             <div>
                                 <h1 className="text-3xl font-bold text-white mb-2">Habit Tracker {currentYear}</h1>
                                 <p className="text-gray-400">{todayFormatted}</p>
                             </div>
-                            <div className="flex gap-2">
+                            <nav aria-label="Main actions" className="flex gap-2">
                                 <button
                                     onClick={exportToCSV}
-                                    className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
+                                    aria-label="Export habit data to CSV"
                                     title="Export to CSV"
                                 >
-                                    <DownloadIcon />
+                                    <DownloadIcon aria-hidden="true" />
                                 </button>
-                                <label className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors cursor-pointer" title="Import from CSV">
-                                    <UploadIcon />
-                                    <input type="file" accept=".csv" onChange={importFromCSV} className="hidden" />
+                                <label className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors cursor-pointer focus-within:ring-2 focus-within:ring-[#58a6ff]" title="Import from CSV">
+                                    <UploadIcon aria-hidden="true" />
+                                    <input
+                                        type="file"
+                                        accept=".csv"
+                                        onChange={importFromCSV}
+                                        className="hidden"
+                                        aria-label="Import habit data from CSV"
+                                    />
                                 </label>
                                 <button
                                     onClick={logout}
-                                    className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors"
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
+                                    aria-label="Logout"
                                     title="Logout"
                                 >
-                                    <LogoutIcon />
+                                    <LogoutIcon aria-hidden="true" />
                                 </button>
-                            </div>
-                        </div>
+                            </nav>
+                        </header>
                         
                         {confirmDelete !== null && (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-description">
                                 <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 max-w-md">
-                                    <h2 className="text-xl font-bold text-white mb-4">Delete Habit?</h2>
-                                    <p className="text-gray-300 mb-6">
-                                        This will permanently delete your habit tracking data for "{habits.find(h => h.id === confirmDelete)?.name}". 
+                                    <h2 id="dialog-title" className="text-xl font-bold text-white mb-4">Delete Habit?</h2>
+                                    <p id="dialog-description" className="text-gray-300 mb-6">
+                                        This will permanently delete your habit tracking data for "{habits.find(h => h.id === confirmDelete)?.name}".
                                         This action is not reversible.
                                     </p>
                                     <div className="flex gap-3 justify-end">
                                         <button
                                             onClick={cancelDelete}
-                                            className="px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors"
+                                            className="px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
                                         >
                                             Cancel
                                         </button>
                                         <button
                                             onClick={() => removeHabit(confirmDelete)}
-                                            className="px-4 py-2 bg-[#da3633] hover:bg-[#b92e2b] text-white rounded-lg transition-colors"
+                                            className="px-4 py-2 bg-[#da3633] hover:bg-[#b92e2b] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
                                         >
                                             Delete Permanently
                                         </button>
@@ -432,38 +444,43 @@
                                 <div key={habit.id} className="mb-10">
                                     <div className="inline-block">
                                         <div className="mb-4 flex items-center gap-4 bg-[#161b22] p-4 rounded-lg border border-[#30363d]">
-                                            <label className="flex items-center gap-3 cursor-pointer flex-1">
+                                            <label className="flex items-center gap-3 cursor-pointer flex-1" htmlFor={`today-checkbox-${habit.id}`}>
                                                 <div className="relative">
                                                     <input
+                                                        id={`today-checkbox-${habit.id}`}
                                                         type="checkbox"
                                                         checked={isCheckedToday}
                                                         onChange={() => toggleToday(habit.id)}
-                                                        className="w-5 h-5 rounded border-2 border-gray-600 appearance-none checked:bg-[#238636] checked:border-[#238636] cursor-pointer"
+                                                        className="w-5 h-5 rounded border-2 border-gray-600 appearance-none checked:bg-[#238636] checked:border-[#238636] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
+                                                        aria-label={`Mark ${habit.name} as completed for today`}
                                                     />
                                                     {isCheckedToday && (
                                                         <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-white">
-                                                            <CheckIcon />
+                                                            <CheckIcon aria-hidden="true" />
                                                         </div>
                                                     )}
                                                 </div>
                                                 <span className="text-lg flex items-center gap-2">
                                                     <input
+                                                        id={`habit-name-${habit.id}`}
                                                         type="text"
                                                         value={habit.name}
                                                         onChange={(e) => handleHabitNameChange(habit.id, e.target.value)}
-                                                        className="font-semibold text-white bg-transparent border-none outline-none focus:bg-[#0d1117] px-2 py-1 rounded"
+                                                        className="font-semibold text-white bg-transparent border-none outline-none focus:bg-[#0d1117] focus:ring-2 focus:ring-[#58a6ff] px-2 py-1 rounded"
                                                         onClick={(e) => e.preventDefault()}
+                                                        aria-label="Habit name"
                                                     />
-                                                    <span className="text-gray-400">- Did you complete this habit today?</span>
+                                                    <span className="text-gray-400" aria-hidden="true">- Did you complete this habit today?</span>
                                                 </span>
                                             </label>
                                             {deleteMode && habits.length > 1 && (
                                                 <button
                                                     onClick={() => initiateDelete(habit.id)}
-                                                    className="text-gray-400 hover:text-red-400 transition-colors p-2"
+                                                    className="text-gray-400 hover:text-red-400 transition-colors p-2 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+                                                    aria-label={`Delete ${habit.name}`}
                                                     title="Delete habit"
                                                 >
-                                                    <TrashIcon />
+                                                    <TrashIcon aria-hidden="true" />
                                                 </button>
                                             )}
                                         </div>
@@ -490,34 +507,39 @@
                                                     ))}
                                                 </div>
 
-                                                <div className="flex gap-1">
+                                                <div className="flex gap-1" role="grid" aria-label={`${habit.name} habit tracking calendar`}>
                                                     {weeks.map((week, weekIndex) => (
-                                                        <div key={weekIndex} className="flex flex-col gap-1">
+                                                        <div key={weekIndex} className="flex flex-col gap-1" role="row">
                                                             {week.map((date, dayIndex) => {
                                                                 if (!date) {
-                                                                    return <div key={dayIndex} className="w-[10px] h-[10px]" />;
+                                                                    return <div key={dayIndex} className="w-[10px] h-[10px]" role="gridcell" />;
                                                                 }
-                                                                
+
                                                                 const dateStr = formatDate(date);
                                                                 const isCompleted = habitData[habit.id]?.[dateStr];
                                                                 const todayStr = formatDate(today);
                                                                 const isToday = dateStr === todayStr;
                                                                 const isFuture = dateStr > todayStr;
-                                                                
+
                                                                 return (
-                                                                    <div
+                                                                    <button
                                                                         key={dayIndex}
-                                                                        className={`w-[10px] h-[10px] rounded-sm cursor-pointer hover:ring-1 hover:ring-white ${
-                                                                            isFuture 
-                                                                                ? 'bg-[#161b22]' 
-                                                                                : isCompleted 
-                                                                                    ? '' 
+                                                                        role="gridcell"
+                                                                        className={`w-[10px] h-[10px] rounded-sm cursor-pointer hover:ring-1 hover:ring-white focus:outline-none focus:ring-2 focus:ring-[#58a6ff] ${
+                                                                            isFuture
+                                                                                ? 'bg-[#161b22]'
+                                                                                : isCompleted
+                                                                                    ? ''
                                                                                     : 'bg-[#161b22]'
                                                                         } ${isToday ? 'ring-1 ring-blue-500' : ''}`}
                                                                         style={{
                                                                             backgroundColor: isCompleted && !isFuture ? habit.color : undefined
                                                                         }}
                                                                         onClick={() => !isFuture && toggleDay(habit.id, dateStr)}
+                                                                        disabled={isFuture}
+                                                                        aria-label={`${date.toLocaleDateString()}: ${isCompleted ? 'Completed' : 'Not completed'}${isFuture ? ' (future date)' : ''}`}
+                                                                        aria-pressed={!isFuture && isCompleted}
+                                                                        tabIndex={isFuture ? -1 : 0}
                                                                         title={`${habit.name} - ${date.toLocaleDateString()}`}
                                                                     />
                                                                 );
@@ -532,27 +554,30 @@
                             );
                         })}
                         
-                        <div className="flex gap-3">
+                        <div className="flex gap-3" role="group" aria-label="Habit management actions">
                             {habits.length < 6 && (
                                 <button
                                     onClick={addHabit}
-                                    className="flex items-center gap-2 px-6 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors"
+                                    className="flex items-center gap-2 px-6 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043]"
+                                    aria-label={`Add new habit (${habits.length} of 6 habits)`}
                                 >
-                                    <PlusIcon />
+                                    <PlusIcon aria-hidden="true" />
                                     Add Habit ({habits.length}/6)
                                 </button>
                             )}
-                            
+
                             {habits.length > 1 && (
                                 <button
                                     onClick={() => setDeleteMode(!deleteMode)}
-                                    className={`flex items-center gap-2 px-6 py-3 font-semibold rounded-lg transition-colors ${
-                                        deleteMode 
-                                            ? 'bg-[#da3633] hover:bg-[#b92e2b] text-white' 
-                                            : 'bg-[#21262d] hover:bg-[#30363d] text-white'
+                                    className={`flex items-center gap-2 px-6 py-3 font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 ${
+                                        deleteMode
+                                            ? 'bg-[#da3633] hover:bg-[#b92e2b] text-white focus:ring-red-500'
+                                            : 'bg-[#21262d] hover:bg-[#30363d] text-white focus:ring-[#58a6ff]'
                                     }`}
+                                    aria-label={deleteMode ? 'Cancel delete mode' : 'Enter delete mode to remove habits'}
+                                    aria-pressed={deleteMode}
                                 >
-                                    <TrashIcon />
+                                    <TrashIcon aria-hidden="true" />
                                     {deleteMode ? 'Cancel Delete' : 'Remove Habit'}
                                 </button>
                             )}
