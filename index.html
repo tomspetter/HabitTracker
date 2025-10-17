@@ -1,0 +1,569 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Habit Tracker 2025</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        const { useState, useEffect } = React;
+
+        const CheckIcon = () => (
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+        );
+
+        const PlusIcon = () => (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+        );
+
+        const TrashIcon = () => (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+            </svg>
+        );
+
+        const DownloadIcon = () => (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+        );
+
+        const UploadIcon = () => (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+            </svg>
+        );
+
+        const LogoutIcon = () => (
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+                <polyline points="16 17 21 12 16 7"></polyline>
+                <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+        );
+
+        // Password is stored as a simple hash - CHANGE THIS to your own password!
+        const PASSWORD_HASH = "mypassword123"; // CHANGE THIS!
+
+        const LoginScreen = ({ onLogin }) => {
+            const [password, setPassword] = useState('');
+            const [error, setError] = useState('');
+
+            const handleSubmit = (e) => {
+                e.preventDefault();
+                if (password === PASSWORD_HASH) {
+                    onLogin();
+                    setError('');
+                } else {
+                    setError('Incorrect password');
+                }
+            };
+
+            return (
+                <div className="min-h-screen bg-[#0d1117] flex items-center justify-center p-8">
+                    <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-8 w-full max-w-md">
+                        <h1 className="text-3xl font-bold text-white mb-6 text-center">Habit Tracker 2025</h1>
+                        <form onSubmit={handleSubmit}>
+                            <div className="mb-4">
+                                <label className="block text-gray-300 mb-2">Password</label>
+                                <input
+                                    type="password"
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    className="w-full px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff]"
+                                    placeholder="Enter password"
+                                />
+                            </div>
+                            {error && <p className="text-red-400 mb-4">{error}</p>}
+                            <button
+                                type="submit"
+                                className="w-full px-4 py-2 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors"
+                            >
+                                Login
+                            </button>
+                        </form>
+                        <p className="text-gray-400 text-sm mt-4 text-center">
+                            Note: Change PASSWORD_HASH in the code to set your own password
+                        </p>
+                    </div>
+                </div>
+            );
+        };
+
+        const HabitTracker = () => {
+            const [isLoggedIn, setIsLoggedIn] = useState(false);
+            
+            // Rainbow color palette (6 colors)
+            const colorPalette = [
+                '#ef4444',  // Red
+                '#f97316',  // Orange
+                '#eab308',  // Yellow
+                '#22c55e',  // Green
+                '#3b82f6',  // Blue
+                '#a855f7',  // Purple
+            ];
+
+            const today = new Date();
+            const currentYear = today.getFullYear();
+            
+            const todayFormatted = today.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            const generateYearDates = () => {
+                const dates = [];
+                const startDate = new Date(currentYear, 0, 1);
+                const endDate = new Date(currentYear, 11, 31);
+                
+                let currentDate = new Date(startDate);
+                while (currentDate <= endDate) {
+                    dates.push(new Date(currentDate));
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                return dates;
+            };
+
+            const yearDates = generateYearDates();
+
+            const [habits, setHabits] = useState([]);
+            const [habitData, setHabitData] = useState({});
+            const [deleteMode, setDeleteMode] = useState(false);
+            const [confirmDelete, setConfirmDelete] = useState(null);
+
+            const formatDate = (date) => {
+                const year = date.getFullYear();
+                const month = String(date.getMonth() + 1).padStart(2, '0');
+                const day = String(date.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            };
+
+            // Load data from memory on mount
+            useEffect(() => {
+                const savedHabits = JSON.parse(localStorage.getItem('habits') || '[]');
+                const savedData = JSON.parse(localStorage.getItem('habitData') || '{}');
+                
+                if (savedHabits.length > 0) {
+                    setHabits(savedHabits);
+                    setHabitData(savedData);
+                } else {
+                    // Initialize with one default habit - habitData starts empty
+                    const defaultHabit = { id: 1, name: 'New Habit', color: colorPalette[0] };
+                    setHabits([defaultHabit]);
+                    setHabitData({ 1: {} }); // Empty object means no dates are checked
+                }
+            }, []);
+
+            // Save to memory whenever data changes
+            useEffect(() => {
+                if (habits.length > 0) {
+                    localStorage.setItem('habits', JSON.stringify(habits));
+                    localStorage.setItem('habitData', JSON.stringify(habitData));
+                }
+            }, [habits, habitData]);
+
+            const addHabit = () => {
+                if (habits.length >= 6) return;
+                
+                const newId = Math.max(...habits.map(h => h.id), 0) + 1;
+                const colorIndex = habits.length % colorPalette.length;
+                
+                const newHabit = {
+                    id: newId,
+                    name: 'New Habit',
+                    color: colorPalette[colorIndex]
+                };
+                
+                setHabits([...habits, newHabit]);
+                setHabitData({...habitData, [newId]: {}});
+            };
+
+            const removeHabit = (id) => {
+                if (habits.length === 1) return;
+                setHabits(habits.filter(h => h.id !== id));
+                const newData = {...habitData};
+                delete newData[id];
+                setHabitData(newData);
+                setConfirmDelete(null);
+                setDeleteMode(false);
+            };
+
+            const initiateDelete = (id) => {
+                setConfirmDelete(id);
+            };
+
+            const cancelDelete = () => {
+                setConfirmDelete(null);
+            };
+
+            const handleHabitNameChange = (id, newName) => {
+                setHabits(habits.map(h => 
+                    h.id === id ? { ...h, name: newName } : h
+                ));
+            };
+
+            const toggleDay = (habitId, dateStr) => {
+                const newHabitData = {...habitData};
+                if (!newHabitData[habitId]) {
+                    newHabitData[habitId] = {};
+                }
+                newHabitData[habitId][dateStr] = !newHabitData[habitId][dateStr];
+                setHabitData(newHabitData);
+            };
+
+            const toggleToday = (habitId) => {
+                const todayStr = formatDate(today);
+                toggleDay(habitId, todayStr);
+            };
+
+            // Export to CSV
+            const exportToCSV = () => {
+                const csvData = [];
+                
+                // Header
+                csvData.push(['Habit ID', 'Habit Name', 'Color', 'Date', 'Completed']);
+                
+                // Data rows
+                habits.forEach(habit => {
+                    const data = habitData[habit.id] || {};
+                    Object.keys(data).forEach(date => {
+                        csvData.push([
+                            habit.id,
+                            habit.name,
+                            habit.color,
+                            date,
+                            data[date] ? 'true' : 'false'
+                        ]);
+                    });
+                });
+                
+                const csv = Papa.unparse(csvData);
+                const blob = new Blob([csv], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `habit-tracker-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+            };
+
+            // Import from CSV
+            const importFromCSV = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                Papa.parse(file, {
+                    header: true,
+                    complete: (results) => {
+                        const newHabits = [];
+                        const newHabitData = {};
+                        const habitMap = new Map();
+
+                        results.data.forEach(row => {
+                            if (!row['Habit ID']) return;
+                            
+                            const habitId = parseInt(row['Habit ID']);
+                            
+                            if (!habitMap.has(habitId)) {
+                                habitMap.set(habitId, {
+                                    id: habitId,
+                                    name: row['Habit Name'],
+                                    color: row['Color']
+                                });
+                                newHabitData[habitId] = {};
+                            }
+                            
+                            if (row['Date']) {
+                                newHabitData[habitId][row['Date']] = row['Completed'] === 'true';
+                            }
+                        });
+
+                        setHabits(Array.from(habitMap.values()));
+                        setHabitData(newHabitData);
+                    }
+                });
+            };
+
+            const logout = () => {
+                setIsLoggedIn(false);
+            };
+
+            if (!isLoggedIn) {
+                return <LoginScreen onLogin={() => setIsLoggedIn(true)} />;
+            }
+
+            const getWeekData = () => {
+                const weeks = [];
+                let currentWeek = [];
+                
+                const firstDate = yearDates[0];
+                const firstDay = firstDate.getDay();
+                
+                for (let i = 0; i < firstDay; i++) {
+                    currentWeek.push(null);
+                }
+                
+                yearDates.forEach(date => {
+                    currentWeek.push(date);
+                    if (date.getDay() === 6 || date === yearDates[yearDates.length - 1]) {
+                        weeks.push([...currentWeek]);
+                        currentWeek = [];
+                    }
+                });
+                
+                return weeks;
+            };
+
+            const weeks = getWeekData();
+
+            const getMonthLabels = () => {
+                const months = [];
+                let currentMonth = -1;
+                
+                weeks.forEach((week, weekIndex) => {
+                    const firstValidDate = week.find(d => d !== null);
+                    if (firstValidDate) {
+                        const month = firstValidDate.getMonth();
+                        if (month !== currentMonth) {
+                            const dayOfMonth = firstValidDate.getDate();
+                            if (dayOfMonth <= 7) {
+                                months.push({
+                                    name: firstValidDate.toLocaleString('default', { month: 'short' }),
+                                    index: weekIndex
+                                });
+                            }
+                            currentMonth = month;
+                        }
+                    }
+                });
+                
+                return months;
+            };
+
+            const monthLabels = getMonthLabels();
+            const dayLabels = ['Mon', 'Wed', 'Fri'];
+
+            return (
+                <div className="min-h-screen bg-[#0d1117] text-gray-300 p-8 flex justify-center">
+                    <div className="w-fit">
+                        <div className="flex justify-between items-start mb-8">
+                            <div>
+                                <h1 className="text-3xl font-bold text-white mb-2">Habit Tracker {currentYear}</h1>
+                                <p className="text-gray-400">{todayFormatted}</p>
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={exportToCSV}
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors"
+                                    title="Export to CSV"
+                                >
+                                    <DownloadIcon />
+                                </button>
+                                <label className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors cursor-pointer" title="Import from CSV">
+                                    <UploadIcon />
+                                    <input type="file" accept=".csv" onChange={importFromCSV} className="hidden" />
+                                </label>
+                                <button
+                                    onClick={logout}
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors"
+                                    title="Logout"
+                                >
+                                    <LogoutIcon />
+                                </button>
+                            </div>
+                        </div>
+                        
+                        {confirmDelete !== null && (
+                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+                                <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 max-w-md">
+                                    <h2 className="text-xl font-bold text-white mb-4">Delete Habit?</h2>
+                                    <p className="text-gray-300 mb-6">
+                                        This will permanently delete your habit tracking data for "{habits.find(h => h.id === confirmDelete)?.name}". 
+                                        This action is not reversible.
+                                    </p>
+                                    <div className="flex gap-3 justify-end">
+                                        <button
+                                            onClick={cancelDelete}
+                                            className="px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors"
+                                        >
+                                            Cancel
+                                        </button>
+                                        <button
+                                            onClick={() => removeHabit(confirmDelete)}
+                                            className="px-4 py-2 bg-[#da3633] hover:bg-[#b92e2b] text-white rounded-lg transition-colors"
+                                        >
+                                            Delete Permanently
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                        
+                        {habits.map((habit) => {
+                            const todayStr = formatDate(today);
+                            const isCheckedToday = habitData[habit.id]?.[todayStr] || false;
+                            
+                            return (
+                                <div key={habit.id} className="mb-10">
+                                    <div className="inline-block">
+                                        <div className="mb-4 flex items-center gap-4 bg-[#161b22] p-4 rounded-lg border border-[#30363d]">
+                                            <label className="flex items-center gap-3 cursor-pointer flex-1">
+                                                <div className="relative">
+                                                    <input
+                                                        type="checkbox"
+                                                        checked={isCheckedToday}
+                                                        onChange={() => toggleToday(habit.id)}
+                                                        className="w-5 h-5 rounded border-2 border-gray-600 appearance-none checked:bg-[#238636] checked:border-[#238636] cursor-pointer"
+                                                    />
+                                                    {isCheckedToday && (
+                                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-white">
+                                                            <CheckIcon />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <span className="text-lg flex items-center gap-2">
+                                                    <input
+                                                        type="text"
+                                                        value={habit.name}
+                                                        onChange={(e) => handleHabitNameChange(habit.id, e.target.value)}
+                                                        className="font-semibold text-white bg-transparent border-none outline-none focus:bg-[#0d1117] px-2 py-1 rounded"
+                                                        onClick={(e) => e.preventDefault()}
+                                                    />
+                                                    <span className="text-gray-400">- Did you complete this habit today?</span>
+                                                </span>
+                                            </label>
+                                            {deleteMode && habits.length > 1 && (
+                                                <button
+                                                    onClick={() => initiateDelete(habit.id)}
+                                                    className="text-gray-400 hover:text-red-400 transition-colors p-2"
+                                                    title="Delete habit"
+                                                >
+                                                    <TrashIcon />
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        <div className="flex gap-3">
+                                            <div className="flex flex-col gap-1 text-xs text-gray-500 justify-start pt-6">
+                                                {dayLabels.map((day, i) => (
+                                                    <div key={i} style={{ height: '11px', lineHeight: '11px', marginBottom: i < dayLabels.length - 1 ? '12px' : '0' }}>
+                                                        {day}
+                                                    </div>
+                                                ))}
+                                            </div>
+
+                                            <div className="flex-1">
+                                                <div className="flex gap-1 mb-2 text-xs text-gray-500 relative h-4">
+                                                    {monthLabels.map((month, i) => (
+                                                        <div
+                                                            key={i}
+                                                            className="absolute"
+                                                            style={{ left: `${(month.index * 10) + (month.index * 4)}px` }}
+                                                        >
+                                                            {month.name}
+                                                        </div>
+                                                    ))}
+                                                </div>
+
+                                                <div className="flex gap-1">
+                                                    {weeks.map((week, weekIndex) => (
+                                                        <div key={weekIndex} className="flex flex-col gap-1">
+                                                            {week.map((date, dayIndex) => {
+                                                                if (!date) {
+                                                                    return <div key={dayIndex} className="w-[10px] h-[10px]" />;
+                                                                }
+                                                                
+                                                                const dateStr = formatDate(date);
+                                                                const isCompleted = habitData[habit.id]?.[dateStr];
+                                                                const todayStr = formatDate(today);
+                                                                const isToday = dateStr === todayStr;
+                                                                const isFuture = dateStr > todayStr;
+                                                                
+                                                                return (
+                                                                    <div
+                                                                        key={dayIndex}
+                                                                        className={`w-[10px] h-[10px] rounded-sm cursor-pointer hover:ring-1 hover:ring-white ${
+                                                                            isFuture 
+                                                                                ? 'bg-[#161b22]' 
+                                                                                : isCompleted 
+                                                                                    ? '' 
+                                                                                    : 'bg-[#161b22]'
+                                                                        } ${isToday ? 'ring-1 ring-blue-500' : ''}`}
+                                                                        style={{
+                                                                            backgroundColor: isCompleted && !isFuture ? habit.color : undefined
+                                                                        }}
+                                                                        onClick={() => !isFuture && toggleDay(habit.id, dateStr)}
+                                                                        title={`${habit.name} - ${date.toLocaleDateString()}`}
+                                                                    />
+                                                                );
+                                                            })}
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                        
+                        <div className="flex gap-3">
+                            {habits.length < 6 && (
+                                <button
+                                    onClick={addHabit}
+                                    className="flex items-center gap-2 px-6 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors"
+                                >
+                                    <PlusIcon />
+                                    Add Habit ({habits.length}/6)
+                                </button>
+                            )}
+                            
+                            {habits.length > 1 && (
+                                <button
+                                    onClick={() => setDeleteMode(!deleteMode)}
+                                    className={`flex items-center gap-2 px-6 py-3 font-semibold rounded-lg transition-colors ${
+                                        deleteMode 
+                                            ? 'bg-[#da3633] hover:bg-[#b92e2b] text-white' 
+                                            : 'bg-[#21262d] hover:bg-[#30363d] text-white'
+                                    }`}
+                                >
+                                    <TrashIcon />
+                                    {deleteMode ? 'Cancel Delete' : 'Remove Habit'}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<HabitTracker />);
+    </script>
+</body>
+</html>
