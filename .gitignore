@@ -23,3 +23,8 @@ Thumbs.db
 
 # Temporary files
 *.tmp
+
+# User data (DO NOT commit user data!)
+data/users.json
+data/user_*.json
+data/login_attempts.json
