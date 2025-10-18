@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habit Tracker 2025</title>
+    <title>Habit Tracker</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -86,7 +86,7 @@
             return (
                 <div className="min-h-screen bg-[#0d1117] flex items-center justify-center p-8">
                     <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-8 w-full max-w-md" role="main">
-                        <h1 className="text-3xl font-bold text-white mb-6 text-center">Habit Tracker 2025</h1>
+                        <h1 className="text-3xl font-bold text-white mb-6 text-center">Habit Tracker</h1>
                         <form onSubmit={handleSubmit} aria-label="Login form">
                             <div className="mb-4">
                                 <label htmlFor="password-input" className="block text-gray-300 mb-2">Password</label>
@@ -134,11 +134,10 @@
             const today = new Date();
             const currentYear = today.getFullYear();
             
-            const todayFormatted = today.toLocaleDateString('en-US', { 
-                weekday: 'long', 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
+            const todayFormatted = today.toLocaleDateString('en-US', {
+                weekday: 'long',
+                month: 'long',
+                day: 'numeric'
             });
 
             const generateYearDates = () => {
@@ -376,31 +375,13 @@
 
             return (
                 <div className="min-h-screen bg-[#0d1117] text-gray-300 p-8 flex justify-center">
-                    <div className="w-fit">
+                    <div className="w-full max-w-7xl">
                         <header className="flex justify-between items-start mb-8">
                             <div>
                                 <h1 className="text-3xl font-bold text-white mb-2">Habit Tracker</h1>
                                 <p className="text-gray-400">{todayFormatted}</p>
                             </div>
-                            <nav aria-label="Main actions" className="flex gap-2">
-                                <button
-                                    onClick={exportToCSV}
-                                    className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
-                                    aria-label="Export habit data to CSV"
-                                    title="Export to CSV"
-                                >
-                                    <DownloadIcon aria-hidden="true" />
-                                </button>
-                                <label className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors cursor-pointer focus-within:ring-2 focus-within:ring-[#58a6ff]" title="Import from CSV">
-                                    <UploadIcon aria-hidden="true" />
-                                    <input
-                                        type="file"
-                                        accept=".csv"
-                                        onChange={importFromCSV}
-                                        className="hidden"
-                                        aria-label="Import habit data from CSV"
-                                    />
-                                </label>
+                            <nav aria-label="Main actions">
                                 <button
                                     onClick={logout}
                                     className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
@@ -444,36 +425,36 @@
                             
                             return (
                                 <div key={habit.id} className="mb-10">
-                                    <div className="inline-block">
-                                        <div className="mb-4 flex items-center gap-4 bg-[#161b22] p-4 rounded-lg border border-[#30363d]">
-                                            <label className="flex items-center gap-3 cursor-pointer flex-1" htmlFor={`today-checkbox-${habit.id}`}>
-                                                <div className="relative">
-                                                    <input
-                                                        id={`today-checkbox-${habit.id}`}
-                                                        type="checkbox"
-                                                        checked={isCheckedToday}
-                                                        onChange={() => toggleToday(habit.id)}
-                                                        className="w-5 h-5 rounded border-2 border-gray-600 appearance-none checked:bg-[#238636] checked:border-[#238636] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
-                                                        aria-label={`Mark ${habit.name} as completed for today`}
-                                                    />
-                                                    {isCheckedToday && (
-                                                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-white">
-                                                            <CheckIcon aria-hidden="true" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <span className="text-lg flex items-center gap-2">
+                                    <div>
+                                        <div className="mb-4 flex flex-col md:flex-row md:items-center gap-4 bg-[#161b22] p-4 rounded-lg border border-[#30363d]">
+                                            <label className="flex flex-col md:flex-row md:items-center gap-3 cursor-pointer flex-1" htmlFor={`today-checkbox-${habit.id}`}>
+                                                <div className="flex items-center gap-3">
+                                                    <div className="relative">
+                                                        <input
+                                                            id={`today-checkbox-${habit.id}`}
+                                                            type="checkbox"
+                                                            checked={isCheckedToday}
+                                                            onChange={() => toggleToday(habit.id)}
+                                                            className="w-5 h-5 rounded border-2 border-gray-600 appearance-none checked:bg-[#238636] checked:border-[#238636] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
+                                                            aria-label={`Mark ${habit.name} as completed for today`}
+                                                        />
+                                                        {isCheckedToday && (
+                                                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-white">
+                                                                <CheckIcon aria-hidden="true" />
+                                                            </div>
+                                                        )}
+                                                    </div>
                                                     <input
                                                         id={`habit-name-${habit.id}`}
                                                         type="text"
                                                         value={habit.name}
                                                         onChange={(e) => handleHabitNameChange(habit.id, e.target.value)}
-                                                        className="font-semibold text-white bg-transparent border-none outline-none focus:bg-[#0d1117] focus:ring-2 focus:ring-[#58a6ff] px-2 py-1 rounded"
+                                                        className="font-semibold text-lg text-white bg-transparent border-none outline-none focus:bg-[#0d1117] focus:ring-2 focus:ring-[#58a6ff] px-2 py-1 rounded"
                                                         onClick={(e) => e.preventDefault()}
                                                         aria-label="Habit name"
                                                     />
-                                                    <span className="text-gray-400" aria-hidden="true">- Did you complete this habit today?</span>
-                                                </span>
+                                                </div>
+                                                <span className="text-gray-400" aria-hidden="true">- Did you complete this habit today?</span>
                                             </label>
                                             {deleteMode && habits.length > 1 && (
                                                 <button
@@ -496,7 +477,7 @@
                                                 ))}
                                             </div>
 
-                                            <div className="flex-1">
+                                            <div className="flex-1 overflow-x-auto pb-2">
                                                 <div className="flex gap-1 mb-2 text-xs text-gray-500 relative h-4">
                                                     {monthLabels.map((month, i) => (
                                                         <div
