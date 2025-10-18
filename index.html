@@ -120,7 +120,8 @@
 
         const HabitTracker = () => {
             const [isLoggedIn, setIsLoggedIn] = useState(false);
-            
+            const calendarRefs = React.useRef({});
+
             // Rainbow color palette (6 colors)
             const colorPalette = [
                 '#ef4444',  // Red
@@ -192,6 +193,7 @@
                     localStorage.setItem('habitData', JSON.stringify(habitData));
                 }
             }, [habits, habitData]);
+
 
             const addHabit = () => {
                 if (habits.length >= 6) return;
@@ -477,7 +479,19 @@
                                                 ))}
                                             </div>
 
-                                            <div className="flex-1 overflow-x-auto pb-2">
+                                            <div
+                                                className="flex-1 overflow-x-auto pb-2"
+                                                ref={(el) => {
+                                                    if (el) {
+                                                        calendarRefs.current[habit.id] = el;
+                                                        // Auto-scroll to the right to show today
+                                                        setTimeout(() => {
+                                                            el.scrollLeft = el.scrollWidth - el.clientWidth;
+                                                        }, 50);
+                                                    }
+                                                }}
+                                            >
+                                                <div className="inline-block pr-1">
                                                 <div className="flex gap-1 mb-2 text-xs text-gray-500 relative h-4">
                                                     {monthLabels.map((month, i) => (
                                                         <div
@@ -529,6 +543,7 @@
                                                             })}
                                                         </div>
                                                     ))}
+                                                </div>
                                                 </div>
                                             </div>
                                         </div>
