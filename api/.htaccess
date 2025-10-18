@@ -1,0 +1,23 @@
+# Security headers for API endpoints
+
+# Prevent clickjacking
+Header always set X-Frame-Options "DENY"
+
+# Enable XSS protection
+Header always set X-XSS-Protection "1; mode=block"
+
+# Prevent MIME sniffing
+Header always set X-Content-Type-Options "nosniff"
+
+# Referrer policy
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Content Security Policy (adjust as needed)
+Header always set Content-Security-Policy "default-src 'self'"
+
+# Only allow POST requests to auth.php and data.php (except for GET check action)
+<FilesMatch "\.(php)$">
+    <LimitExcept GET POST>
+        Require all denied
+    </LimitExcept>
+</FilesMatch>

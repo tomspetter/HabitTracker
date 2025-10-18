@@ -1,0 +1,10 @@
+# Deny all direct access to data directory
+# This prevents users from accessing JSON files directly via URL
+
+Order Deny,Allow
+Deny from all
+
+# Allow only PHP scripts to access
+<FilesMatch "\.(php)$">
+    Allow from all
+</FilesMatch>
