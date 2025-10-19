@@ -929,8 +929,369 @@
                 return <StatisticsPage />;
             }
 
+            // Settings Page Component
+            const SettingsPage = () => {
+                const [currentPassword, setCurrentPassword] = useState('');
+                const [newPassword, setNewPassword] = useState('');
+                const [confirmPassword, setConfirmPassword] = useState('');
+                const [passwordError, setPasswordError] = useState('');
+                const [passwordSuccess, setPasswordSuccess] = useState('');
+                const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
+                const [deletePassword, setDeletePassword] = useState('');
+                const [deleteError, setDeleteError] = useState('');
+                const [importFile, setImportFile] = useState(null);
+
+                const handleChangePassword = async (e) => {
+                    e.preventDefault();
+                    setPasswordError('');
+                    setPasswordSuccess('');
+
+                    // Validation
+                    if (newPassword.length < 8) {
+                        setPasswordError('New password must be at least 8 characters');
+                        return;
+                    }
+
+                    if (newPassword !== confirmPassword) {
+                        setPasswordError('New passwords do not match');
+                        return;
+                    }
+
+                    try {
+                        const response = await fetch('api/account.php?action=change_password', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                current_password: currentPassword,
+                                new_password: newPassword,
+                                csrf_token: csrfToken
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            setPasswordSuccess('Password updated successfully!');
+                            setCurrentPassword('');
+                            setNewPassword('');
+                            setConfirmPassword('');
+                        } else {
+                            setPasswordError(data.error || 'Failed to update password');
+                        }
+                    } catch (err) {
+                        setPasswordError('Network error. Please try again.');
+                    }
+                };
+
+                const handleDeleteAccount = async () => {
+                    setDeleteError('');
+
+                    try {
+                        const response = await fetch('api/account.php?action=delete_account', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                password: deletePassword,
+                                csrf_token: csrfToken
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            // Account deleted, log out
+                            logout();
+                        } else {
+                            setDeleteError(data.error || 'Failed to delete account');
+                        }
+                    } catch (err) {
+                        setDeleteError('Network error. Please try again.');
+                    }
+                };
+
+                const handleImportData = async () => {
+                    if (!importFile) return;
+
+                    const reader = new FileReader();
+                    reader.onload = async (e) => {
+                        try {
+                            const data = JSON.parse(e.target.result);
+
+                            const response = await fetch('api/data.php?action=import', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    data: data,
+                                    csrf_token: csrfToken
+                                })
+                            });
+
+                            const result = await response.json();
+
+                            if (result.success) {
+                                alert('Data imported successfully!');
+                                loadData(); // Reload the data
+                                setImportFile(null);
+                            } else {
+                                alert(result.error || 'Failed to import data');
+                            }
+                        } catch (err) {
+                            alert('Invalid file format');
+                        }
+                    };
+                    reader.readAsText(importFile);
+                };
+
+                return (
+                    <div className="min-h-screen bg-[#0d1117]">
+                        <Navigation
+                            currentPage={currentPage}
+                            onNavigate={handleNavigate}
+                            isLoggedIn={isLoggedIn}
+                            onLogout={logout}
+                        />
+                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                            {/* Header */}
+                            <div className="mb-8">
+                                <h1 className="text-4xl font-bold text-white mb-2">Settings</h1>
+                                <p className="text-gray-400">Manage your account and preferences</p>
+                            </div>
+
+                            {/* Account Information */}
+                            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 mb-6">
+                                <h2 className="text-xl font-bold text-white mb-4">Account Information</h2>
+
+                                <div className="space-y-4">
+                                    <div>
+                                        <label className="block text-gray-400 text-sm mb-2">Username</label>
+                                        <div className="bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-white">
+                                            {username}
+                                        </div>
+                                        <p className="text-gray-500 text-xs mt-1">Usernames cannot be changed</p>
+                                    </div>
+
+                                    <div className="opacity-50">
+                                        <label className="block text-gray-400 text-sm mb-2">
+                                            Email <span className="text-yellow-500 text-xs">(Coming Soon)</span>
+                                        </label>
+                                        <div className="bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-gray-500">
+                                            Not set
+                                        </div>
+                                        <p className="text-gray-500 text-xs mt-1">Email support will be added in a future update</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Change Password */}
+                            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 mb-6">
+                                <h2 className="text-xl font-bold text-white mb-4">Change Password</h2>
+
+                                <form onSubmit={handleChangePassword} className="space-y-4">
+                                    <div>
+                                        <label htmlFor="current-password" className="block text-gray-400 text-sm mb-2">
+                                            Current Password
+                                        </label>
+                                        <input
+                                            id="current-password"
+                                            type="password"
+                                            value={currentPassword}
+                                            onChange={(e) => setCurrentPassword(e.target.value)}
+                                            className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
+                                            required
+                                        />
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="new-password" className="block text-gray-400 text-sm mb-2">
+                                            New Password
+                                        </label>
+                                        <input
+                                            id="new-password"
+                                            type="password"
+                                            value={newPassword}
+                                            onChange={(e) => setNewPassword(e.target.value)}
+                                            className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
+                                            required
+                                        />
+                                        <p className="text-gray-500 text-xs mt-1">Must be at least 8 characters</p>
+                                    </div>
+
+                                    <div>
+                                        <label htmlFor="confirm-password" className="block text-gray-400 text-sm mb-2">
+                                            Confirm New Password
+                                        </label>
+                                        <input
+                                            id="confirm-password"
+                                            type="password"
+                                            value={confirmPassword}
+                                            onChange={(e) => setConfirmPassword(e.target.value)}
+                                            className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
+                                            required
+                                        />
+                                    </div>
+
+                                    {passwordError && (
+                                        <p className="text-red-400 text-sm">{passwordError}</p>
+                                    )}
+
+                                    {passwordSuccess && (
+                                        <p className="text-green-400 text-sm">{passwordSuccess}</p>
+                                    )}
+
+                                    <button
+                                        type="submit"
+                                        className="px-6 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043]"
+                                    >
+                                        Update Password
+                                    </button>
+                                </form>
+                            </div>
+
+                            {/* Data Management */}
+                            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 mb-6">
+                                <h2 className="text-xl font-bold text-white mb-4">Data Management</h2>
+
+                                <div className="space-y-6">
+                                    {/* Export */}
+                                    <div>
+                                        <h3 className="text-white font-semibold mb-2">Export Data</h3>
+                                        <p className="text-gray-400 text-sm mb-3">
+                                            Download all your habits and tracking data in JSON format.
+                                        </p>
+                                        <button
+                                            onClick={exportData}
+                                            className="flex items-center gap-2 px-6 py-3 bg-[#21262d] hover:bg-[#30363d] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
+                                        >
+                                            <DownloadIcon />
+                                            Export Data
+                                        </button>
+                                    </div>
+
+                                    {/* Import */}
+                                    <div>
+                                        <h3 className="text-white font-semibold mb-2">Import Data</h3>
+                                        <p className="text-gray-400 text-sm mb-3">
+                                            Upload a previously exported JSON file to restore your data.
+                                        </p>
+                                        <div className="flex gap-3">
+                                            <input
+                                                type="file"
+                                                accept=".json"
+                                                onChange={(e) => setImportFile(e.target.files[0])}
+                                                className="text-gray-400 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#21262d] file:text-white hover:file:bg-[#30363d] file:cursor-pointer"
+                                            />
+                                            <button
+                                                onClick={handleImportData}
+                                                disabled={!importFile}
+                                                className="flex items-center gap-2 px-6 py-2 bg-[#21262d] hover:bg-[#30363d] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff] disabled:opacity-50 disabled:cursor-not-allowed"
+                                            >
+                                                <UploadIcon />
+                                                Import
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Danger Zone */}
+                            <div className="bg-[#161b22] border-2 border-[#da3633] rounded-lg p-6">
+                                <h2 className="text-xl font-bold text-red-400 mb-4">⚠️ Danger Zone</h2>
+
+                                <div>
+                                    <h3 className="text-white font-semibold mb-2">Delete Account</h3>
+                                    <p className="text-gray-400 text-sm mb-4">
+                                        Permanently delete your account and all associated data. This action cannot be undone.
+                                    </p>
+                                    <button
+                                        onClick={() => setDeleteConfirmOpen(true)}
+                                        className="px-6 py-3 bg-[#da3633] hover:bg-[#b92e2b] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+                                    >
+                                        Delete My Account
+                                    </button>
+                                </div>
+                            </div>
+
+                            {/* Delete Confirmation Modal */}
+                            {deleteConfirmOpen && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+                                    <div className="bg-[#161b22] border-2 border-[#da3633] rounded-lg p-6 max-w-md w-full">
+                                        <h2 className="text-2xl font-bold text-white mb-4">⚠️ Delete Account</h2>
+                                        <p className="text-gray-300 mb-4">
+                                            This will permanently delete your account and all your habit tracking data.
+                                            This action cannot be undone.
+                                        </p>
+                                        <p className="text-gray-300 mb-4">
+                                            Please enter your password to confirm:
+                                        </p>
+                                        <input
+                                            type="password"
+                                            value={deletePassword}
+                                            onChange={(e) => setDeletePassword(e.target.value)}
+                                            placeholder="Enter your password"
+                                            className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-white mb-4 focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
+                                        />
+                                        {deleteError && (
+                                            <p className="text-red-400 text-sm mb-4">{deleteError}</p>
+                                        )}
+                                        <div className="flex gap-3">
+                                            <button
+                                                onClick={() => {
+                                                    setDeleteConfirmOpen(false);
+                                                    setDeletePassword('');
+                                                    setDeleteError('');
+                                                }}
+                                                className="flex-1 px-4 py-3 bg-[#21262d] hover:bg-[#30363d] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
+                                            >
+                                                Cancel
+                                            </button>
+                                            <button
+                                                onClick={handleDeleteAccount}
+                                                className="flex-1 px-4 py-3 bg-[#da3633] hover:bg-[#b92e2b] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+                                            >
+                                                Delete Permanently
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Footer */}
+                            <footer className="mt-16 pt-8 border-t border-[#30363d] text-center text-gray-400 text-sm">
+                                <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-4">
+                                    <a
+                                        href="https://github.com/tomspetter/HabitTracker"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-[#58a6ff] hover:underline flex items-center gap-1"
+                                    >
+                                        View on GitHub
+                                    </a>
+                                    <span className="hidden md:inline">•</span>
+                                    <a
+                                        href="https://buymeacoffee.com/tomspetter"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-[#58a6ff] hover:underline flex items-center gap-1"
+                                    >
+                                        ☕ Buy Me a Coffee
+                                    </a>
+                                    <span className="hidden md:inline">•</span>
+                                    <span className="text-gray-500">v0.9.0</span>
+                                </div>
+                                <p className="mb-2">
+                                    Made with ❤️ by Tom Spetter • Open Source (MIT License)
+                                </p>
+                                <p className="text-xs text-gray-500">
+                                    © {new Date().getFullYear()} Tom Spetter
+                                </p>
+                            </footer>
+                        </div>
+                    </div>
+                );
+            };
+
             if (currentPage === 'settings') {
-                return <PlaceholderPage title="Settings" description="Coming soon - Manage your account and preferences" />;
+                return <SettingsPage />;
             }
 
             const getWeekData = () => {

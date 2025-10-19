@@ -91,6 +91,47 @@ switch ($action) {
         echo json_encode($data, JSON_PRETTY_PRINT);
         break;
 
+    case 'import':
+        // Import user's data from JSON
+        // Validate CSRF token
+        $csrfToken = $input['csrf_token'] ?? '';
+        if (!validateCSRFToken($csrfToken)) {
+            http_response_code(403);
+            echo json_encode(['success' => false, 'error' => 'Invalid CSRF token']);
+            exit;
+        }
+
+        // Get imported data
+        $importedData = $input['data'] ?? null;
+
+        if (!is_array($importedData)) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Invalid data format']);
+            exit;
+        }
+
+        // Validate structure
+        if (!isset($importedData['habits']) || !isset($importedData['habitData'])) {
+            http_response_code(400);
+            echo json_encode(['success' => false, 'error' => 'Invalid data structure']);
+            exit;
+        }
+
+        // Save imported data
+        $data = [
+            'habits' => $importedData['habits'],
+            'habitData' => $importedData['habitData'],
+            'lastModified' => time()
+        ];
+
+        if (file_put_contents($userDataFile, json_encode($data, JSON_PRETTY_PRINT)) !== false) {
+            echo json_encode(['success' => true, 'message' => 'Data imported successfully']);
+        } else {
+            http_response_code(500);
+            echo json_encode(['success' => false, 'error' => 'Failed to import data']);
+        }
+        break;
+
     default:
         http_response_code(400);
         echo json_encode(['success' => false, 'error' => 'Invalid action']);
