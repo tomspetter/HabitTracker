@@ -231,22 +231,7 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - Overall completion rate dashboard
 - Visual charts and graphs
 
-#### 2. Habit Notes/Journal
-
-- Optional daily notes per habit
-- Reflection prompts ("Why did you complete/skip this?")
-- Daily journal entries
-- Note history viewing
-
-#### 3. Email Integration (Optional for Self-Hosters)
-
-- Email field in registration (configurable)
-- Email verification for new accounts
-- Password reset via email
-- SMTP integration with popular providers
-- Configuration flag to enable/disable email features
-
-#### 4. Account Settings Page
+#### 2. Account Settings Page
 
 - Change password functionality
 - Update user profile
@@ -254,7 +239,7 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - Export data management
 - Privacy settings
 
-#### 5. Landing Page (for habitdot.com)
+#### 3. Landing Page (for habitdot.com)
 
 - Hero section with feature highlights
 - Live demo or screenshots
@@ -262,13 +247,21 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - Call-to-action buttons
 - Self-hosting instructions
 
-#### 6. About Page
+#### 4. About Page
 
 - Project information and philosophy
 - Open source details and contribution guidelines
 - Contact information
 - FAQ section
 - Credits and acknowledgments
+
+#### 5. Email Integration (Optional for Self-Hosters)
+
+- Email field in registration (configurable)
+- Email verification for new accounts
+- Password reset via email
+- SMTP integration with popular providers
+- Configuration flag to enable/disable email features
 
 ### 💡 Future Enhancements (Lower Priority)
 
