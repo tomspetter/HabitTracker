@@ -196,14 +196,71 @@ See [SECURITY.md](SECURITY.md) for complete security documentation.
 
 See [SECURITY.md](SECURITY.md) for full security details.
 
-## Planned Improvements
+## Roadmap
 
-Future enhancements planned:
-- **Statistics**: Add streak counters, completion percentages, and analytics
-- **Password Reset**: Email-based password recovery
-- **Data Export**: JSON/CSV export functionality
+### ✅ Completed Features
+- Server-side authentication with bcrypt password hashing
+- CSRF protection and rate limiting
+- Year-at-a-glance calendar (365 days)
+- 6 color-coded habits
+- Streak tracking (current streak + best streak)
+- Data export (JSON download)
+- Mobile responsive design
+- Auto-save functionality
+
+### 🚧 In Development (Priority Order)
+
+#### 1. Statistics & Analytics
+- Completion percentage per habit (daily/weekly/monthly)
+- Total completions counter
+- Best performing habit indicator
+- Overall completion rate dashboard
+- Visual charts and graphs
+
+#### 2. Habit Notes/Journal
+- Optional daily notes per habit
+- Reflection prompts ("Why did you complete/skip this?")
+- Daily journal entries
+- Note history viewing
+
+#### 3. Email Integration (Optional for Self-Hosters)
+- Email field in registration (configurable)
+- Email verification for new accounts
+- Password reset via email
+- SMTP integration with popular providers
+- Configuration flag to enable/disable email features
+
+#### 4. Account Settings Page
+- Change password functionality
+- Update user profile
+- Delete account (with data removal)
+- Export data management
+- Privacy settings
+
+#### 5. Landing Page (for habitdot.com)
+- Hero section with feature highlights
+- Live demo or screenshots
+- Roadmap display
+- Call-to-action buttons
+- Self-hosting instructions
+
+#### 6. About Page
+- Project information and philosophy
+- Open source details and contribution guidelines
+- Contact information
+- FAQ section
+- Credits and acknowledgments
+
+### 💡 Future Enhancements (Lower Priority)
+- **Better Mobile UX**: Larger tap targets, swipe gestures, improved scrolling
+- **Habit Templates**: Pre-defined habits for quick setup
+- **Dark/Light Theme Toggle**: User-selectable color schemes
+- **Email Reminders**: Daily notifications and streak alerts (requires email integration)
+- **Achievement Badges**: Milestone celebrations (7-day, 30-day streaks, etc.)
 - **Database Support**: Option to use MySQL/PostgreSQL instead of JSON files
 - **Two-Factor Authentication**: Optional 2FA for enhanced security
+- **CSV Export**: Export data in CSV format for spreadsheet analysis
+- **Social Features**: Share habits, public templates, leaderboards (long-term)
 
 ## Technology Stack
 

@@ -112,7 +112,7 @@
             };
 
             return (
-                <div className="min-h-screen bg-[#0d1117] flex items-center justify-center p-8">
+                <div className="min-h-screen bg-[#0d1117] flex flex-col items-center justify-center p-8">
                     <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-8 w-full max-w-md" role="main">
                         <h1 className="text-3xl font-bold text-white mb-6 text-center">Habit Tracker</h1>
                         <form onSubmit={handleSubmit} aria-label={isRegistering ? "Registration form" : "Login form"}>
@@ -171,6 +171,31 @@
                             </p>
                         )}
                     </div>
+
+                    <footer className="mt-8 text-center text-gray-400 text-sm">
+                        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-3">
+                            <a
+                                href="https://github.com/tomspetter/HabitTracker"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[#58a6ff] hover:underline"
+                            >
+                                View on GitHub
+                            </a>
+                            <span className="hidden sm:inline">•</span>
+                            <a
+                                href="https://buymeacoffee.com/tomspetter"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-[#58a6ff] hover:underline"
+                            >
+                                ☕ Buy Me a Coffee
+                            </a>
+                        </div>
+                        <p className="text-xs text-gray-500">
+                            © {new Date().getFullYear()} Tom Spetter • Open Source (MIT)
+                        </p>
+                    </footer>
                 </div>
             );
         };
@@ -228,6 +253,46 @@
                 const month = String(date.getMonth() + 1).padStart(2, '0');
                 const day = String(date.getDate()).padStart(2, '0');
                 return `${year}-${month}-${day}`;
+            };
+
+            // Calculate current streak for a habit
+            const calculateCurrentStreak = (habitId) => {
+                const data = habitData[habitId] || {};
+                let streak = 0;
+                let currentDate = new Date(today);
+
+                // Count backwards from today
+                while (true) {
+                    const dateStr = formatDate(currentDate);
+                    if (data[dateStr]) {
+                        streak++;
+                        currentDate.setDate(currentDate.getDate() - 1);
+                    } else {
+                        break;
+                    }
+                }
+
+                return streak;
+            };
+
+            // Calculate longest streak for a habit
+            const calculateLongestStreak = (habitId) => {
+                const data = habitData[habitId] || {};
+                let longestStreak = 0;
+                let currentStreak = 0;
+
+                // Go through all dates in the year
+                yearDates.forEach(date => {
+                    const dateStr = formatDate(date);
+                    if (data[dateStr]) {
+                        currentStreak++;
+                        longestStreak = Math.max(longestStreak, currentStreak);
+                    } else {
+                        currentStreak = 0;
+                    }
+                });
+
+                return longestStreak;
             };
 
             // Check authentication status on mount
@@ -445,6 +510,11 @@
                 }
             };
 
+            const exportData = () => {
+                // Trigger download by navigating to export endpoint
+                window.location.href = 'api/data.php?action=export';
+            };
+
             const handleLogin = (user, token) => {
                 setIsLoggedIn(true);
                 setUsername(user);
@@ -523,7 +593,15 @@
                                 <h1 className="text-3xl font-bold text-white mb-2">Habit Tracker</h1>
                                 <p className="text-gray-400">{todayFormatted}</p>
                             </div>
-                            <nav aria-label="Main actions">
+                            <nav aria-label="Main actions" className="flex items-center gap-2">
+                                <button
+                                    onClick={exportData}
+                                    className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
+                                    aria-label="Export data"
+                                    title="Export Data"
+                                >
+                                    <DownloadIcon aria-hidden="true" />
+                                </button>
                                 <button
                                     onClick={logout}
                                     className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
@@ -564,40 +642,58 @@
                         {habits.map((habit) => {
                             const todayStr = formatDate(today);
                             const isCheckedToday = habitData[habit.id]?.[todayStr] || false;
-                            
+                            const currentStreak = calculateCurrentStreak(habit.id);
+                            const longestStreak = calculateLongestStreak(habit.id);
+
                             return (
                                 <div key={habit.id} className="mb-10">
                                     <div className="inline-block mx-auto" style={{ display: 'block', maxWidth: 'fit-content' }}>
                                         <div className="mb-4 flex flex-col md:flex-row md:items-center gap-4 bg-[#161b22] p-4 rounded-lg border border-[#30363d]">
-                                            <label className="flex flex-col md:flex-row md:items-center gap-3 cursor-pointer flex-1" htmlFor={`today-checkbox-${habit.id}`}>
-                                                <div className="flex items-center gap-3">
-                                                    <div className="relative">
+                                            <div className="flex flex-col gap-2 flex-1">
+                                                <label className="flex flex-col md:flex-row md:items-center gap-3 cursor-pointer" htmlFor={`today-checkbox-${habit.id}`}>
+                                                    <div className="flex items-center gap-3">
+                                                        <div className="relative">
+                                                            <input
+                                                                id={`today-checkbox-${habit.id}`}
+                                                                type="checkbox"
+                                                                checked={isCheckedToday}
+                                                                onChange={() => toggleToday(habit.id)}
+                                                                className="w-5 h-5 rounded border-2 border-gray-600 appearance-none checked:bg-[#238636] checked:border-[#238636] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
+                                                                aria-label={`Mark ${habit.name} as completed for today`}
+                                                            />
+                                                            {isCheckedToday && (
+                                                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-white">
+                                                                    <CheckIcon aria-hidden="true" />
+                                                                </div>
+                                                            )}
+                                                        </div>
                                                         <input
-                                                            id={`today-checkbox-${habit.id}`}
-                                                            type="checkbox"
-                                                            checked={isCheckedToday}
-                                                            onChange={() => toggleToday(habit.id)}
-                                                            className="w-5 h-5 rounded border-2 border-gray-600 appearance-none checked:bg-[#238636] checked:border-[#238636] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
-                                                            aria-label={`Mark ${habit.name} as completed for today`}
+                                                            id={`habit-name-${habit.id}`}
+                                                            type="text"
+                                                            value={habit.name}
+                                                            onChange={(e) => handleHabitNameChange(habit.id, e.target.value)}
+                                                            className="font-semibold text-lg text-white bg-transparent border-none outline-none focus:bg-[#0d1117] focus:ring-2 focus:ring-[#58a6ff] px-2 py-1 rounded"
+                                                            onClick={(e) => e.preventDefault()}
+                                                            aria-label="Habit name"
                                                         />
-                                                        {isCheckedToday && (
-                                                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-white">
-                                                                <CheckIcon aria-hidden="true" />
-                                                            </div>
+                                                    </div>
+                                                    <span className="text-gray-400" aria-hidden="true">- Did you complete this habit today?</span>
+                                                </label>
+                                                {(currentStreak > 0 || longestStreak > 0) && (
+                                                    <div className="flex items-center gap-4 text-sm ml-8">
+                                                        {currentStreak > 0 && (
+                                                            <span className="text-orange-400" title="Current streak">
+                                                                🔥 Current streak: {currentStreak} day{currentStreak !== 1 ? 's' : ''}
+                                                            </span>
+                                                        )}
+                                                        {longestStreak > 0 && (
+                                                            <span className="text-yellow-400" title="Longest streak">
+                                                                🏆 Best: {longestStreak} day{longestStreak !== 1 ? 's' : ''}
+                                                            </span>
                                                         )}
                                                     </div>
-                                                    <input
-                                                        id={`habit-name-${habit.id}`}
-                                                        type="text"
-                                                        value={habit.name}
-                                                        onChange={(e) => handleHabitNameChange(habit.id, e.target.value)}
-                                                        className="font-semibold text-lg text-white bg-transparent border-none outline-none focus:bg-[#0d1117] focus:ring-2 focus:ring-[#58a6ff] px-2 py-1 rounded"
-                                                        onClick={(e) => e.preventDefault()}
-                                                        aria-label="Habit name"
-                                                    />
-                                                </div>
-                                                <span className="text-gray-400" aria-hidden="true">- Did you complete this habit today?</span>
-                                            </label>
+                                                )}
+                                            </div>
                                             {deleteMode && habits.length > 1 && (
                                                 <button
                                                     onClick={() => initiateDelete(habit.id)}
@@ -720,6 +816,34 @@
                                 </button>
                             )}
                         </div>
+
+                        <footer className="mt-16 pt-8 border-t border-[#30363d] text-center text-gray-400 text-sm">
+                            <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-4">
+                                <a
+                                    href="https://github.com/tomspetter/HabitTracker"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[#58a6ff] hover:underline flex items-center gap-1"
+                                >
+                                    View on GitHub
+                                </a>
+                                <span className="hidden md:inline">•</span>
+                                <a
+                                    href="https://buymeacoffee.com/tomspetter"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="text-[#58a6ff] hover:underline flex items-center gap-1"
+                                >
+                                    ☕ Buy Me a Coffee
+                                </a>
+                            </div>
+                            <p className="mb-2">
+                                Made with ❤️ by Tom Spetter • Open Source (MIT License)
+                            </p>
+                            <p className="text-xs text-gray-500">
+                                © {new Date().getFullYear()} Tom Spetter
+                            </p>
+                        </footer>
                     </div>
                 </div>
             );

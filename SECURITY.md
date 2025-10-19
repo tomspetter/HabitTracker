@@ -147,6 +147,31 @@ If forking this project for commercial/SaaS use, consider:
 - DDoS protection (Cloudflare, AWS Shield)
 - Compliance certifications (SOC 2, GDPR, etc.)
 
+## Upcoming Security Enhancements
+
+The following security features are planned for future releases:
+
+### Email Integration (Optional)
+- **Email verification** for new accounts
+- **Password reset** via secure token links
+- **Email validation** and sanitization
+- **SMTP security** best practices
+- **Configuration flags** to enable/disable email features (for self-hosters)
+
+⚠️ **Note**: When email integration is added, it will be OPTIONAL via configuration. Self-hosters can choose to:
+- Enable email features (requires SMTP setup)
+- Disable email (username-only, current behavior)
+
+### Data Export Security
+- ✅ **Already implemented**: JSON export endpoint with authentication
+- **Planned**: Export encryption option for sensitive data
+- **Planned**: Export history/audit log
+
+### Account Management
+- **Planned**: Secure account deletion with data purge confirmation
+- **Planned**: Password change with current password verification
+- **Planned**: Session management (view active sessions, logout all devices)
+
 ## Migration from Previous Version
 
 If you were using the old client-side version:
