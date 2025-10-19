@@ -21,6 +21,7 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
 ## Getting Started
 
 ### Requirements
+
 - PHP 7.4 or higher
 - Web server (Apache recommended for `.htaccess` support)
 
@@ -51,6 +52,7 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
 ⚠️ **Important**: Additional security steps are required for public deployment.
 
 ### Prerequisites
+
 - Web server with PHP 7.4+ (Apache/Nginx)
 - SSL/TLS certificate (HTTPS is **required**)
 - Domain name
@@ -59,12 +61,14 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
 ### Deployment Steps
 
 1. **Enable HTTPS First**
+
    ```bash
    # Use Let's Encrypt for free SSL
    sudo certbot --apache -d yourdomain.com
    ```
 
 2. **Upload Files**
+
    ```bash
    # Via Git
    git clone your-repo.git /var/www/yourdomain.com
@@ -74,6 +78,7 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
    ```
 
 3. **Set Proper Permissions**
+
    ```bash
    # Make data directory writable by web server only
    sudo chown -R www-data:www-data /var/www/yourdomain.com/data
@@ -82,6 +87,7 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
    ```
 
 4. **Configure Apache Virtual Host**
+
    ```apache
    <VirtualHost *:443>
        ServerName yourdomain.com
@@ -110,12 +116,14 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
    ```
 
 5. **Update PHP Configuration**
+
    ```bash
    # Edit php.ini for production
    sudo nano /etc/php/8.x/apache2/php.ini
    ```
 
    Set these values:
+
    ```ini
    expose_php = Off
    display_errors = Off
@@ -125,6 +133,7 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
    ```
 
 6. **Test the Deployment**
+
    - Visit `https://yourdomain.com`
    - Verify HTTPS is working (green padlock)
    - Test registration and login
@@ -154,6 +163,7 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
 For extra security on public servers:
 
 1. **Rate Limiting at Server Level**
+
    ```apache
    # Add to .htaccess
    <IfModule mod_ratelimit.c>
@@ -163,6 +173,7 @@ For extra security on public servers:
    ```
 
 2. **Fail2Ban Configuration**
+
    ```bash
    sudo apt install fail2ban
    # Configure to ban IPs after failed login attempts
@@ -186,6 +197,7 @@ See [SECURITY.md](SECURITY.md) for complete security documentation.
 ## Security Features
 
 ✅ **Implemented Security Measures:**
+
 - Bcrypt password hashing
 - Server-side session management
 - CSRF token protection
@@ -199,6 +211,7 @@ See [SECURITY.md](SECURITY.md) for full security details.
 ## Roadmap
 
 ### ✅ Completed Features
+
 - Server-side authentication with bcrypt password hashing
 - CSRF protection and rate limiting
 - Year-at-a-glance calendar (365 days)
@@ -211,6 +224,7 @@ See [SECURITY.md](SECURITY.md) for full security details.
 ### 🚧 In Development (Priority Order)
 
 #### 1. Statistics & Analytics
+
 - Completion percentage per habit (daily/weekly/monthly)
 - Total completions counter
 - Best performing habit indicator
@@ -218,12 +232,14 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - Visual charts and graphs
 
 #### 2. Habit Notes/Journal
+
 - Optional daily notes per habit
 - Reflection prompts ("Why did you complete/skip this?")
 - Daily journal entries
 - Note history viewing
 
 #### 3. Email Integration (Optional for Self-Hosters)
+
 - Email field in registration (configurable)
 - Email verification for new accounts
 - Password reset via email
@@ -231,6 +247,7 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - Configuration flag to enable/disable email features
 
 #### 4. Account Settings Page
+
 - Change password functionality
 - Update user profile
 - Delete account (with data removal)
@@ -238,6 +255,7 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - Privacy settings
 
 #### 5. Landing Page (for habitdot.com)
+
 - Hero section with feature highlights
 - Live demo or screenshots
 - Roadmap display
@@ -245,6 +263,7 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - Self-hosting instructions
 
 #### 6. About Page
+
 - Project information and philosophy
 - Open source details and contribution guidelines
 - Contact information
@@ -252,24 +271,25 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - Credits and acknowledgments
 
 ### 💡 Future Enhancements (Lower Priority)
+
 - **Better Mobile UX**: Larger tap targets, swipe gestures, improved scrolling
-- **Habit Templates**: Pre-defined habits for quick setup
 - **Dark/Light Theme Toggle**: User-selectable color schemes
 - **Email Reminders**: Daily notifications and streak alerts (requires email integration)
 - **Achievement Badges**: Milestone celebrations (7-day, 30-day streaks, etc.)
 - **Database Support**: Option to use MySQL/PostgreSQL instead of JSON files
 - **Two-Factor Authentication**: Optional 2FA for enhanced security
 - **CSV Export**: Export data in CSV format for spreadsheet analysis
-- **Social Features**: Share habits, public templates, leaderboards (long-term)
 
 ## Technology Stack
 
 ### Frontend
+
 - React 18 (via CDN)
 - Tailwind CSS (via CDN)
 - Pure JavaScript (ES6+)
 
 ### Backend
+
 - PHP 8.3+
 - JSON file-based storage
 - Session-based authentication
