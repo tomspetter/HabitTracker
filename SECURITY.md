@@ -163,14 +163,19 @@ The following security features are planned for future releases:
 - Disable email (username-only, current behavior)
 
 ### Data Export Security
-- ✅ **Already implemented**: JSON export endpoint with authentication
+- ✅ **CSV Export**: User-friendly format for viewing in spreadsheets
+- ✅ **JSON Export**: Complete backup format
+- ✅ **Auto-detection Import**: Accepts both CSV and JSON files
+- ✅ **Authentication Required**: All export/import requires valid session
 - **Planned**: Export encryption option for sensitive data
 - **Planned**: Export history/audit log
 
 ### Account Management
-- **Planned**: Secure account deletion with data purge confirmation
-- **Planned**: Password change with current password verification
+- ✅ **Password Change**: Requires current password verification
+- ✅ **Account Deletion**: Secure deletion with password confirmation and data purge
+- ✅ **Data Export/Import**: Users can backup and restore their data
 - **Planned**: Session management (view active sessions, logout all devices)
+- **Planned**: Login history and activity log
 
 ## Migration from Previous Version
 
@@ -183,13 +188,32 @@ If you were using the old client-side version:
 ## Security Improvements Completed
 
 The following security enhancements have been implemented:
+
+### Authentication & Sessions
 - ✅ Proper password hashing implementation (bcrypt)
 - ✅ Server-side authentication with sessions
-- ✅ CSRF token protection
-- ✅ Rate limiting on login attempts
+- ✅ CSRF token protection on all state-changing operations
+- ✅ Rate limiting on login attempts (5 attempts, 15-minute lockout)
+- ✅ Session timeout (1 hour of inactivity)
+- ✅ Secure session cookies (httponly, samesite)
+
+### Data Protection
 - ✅ Server-side data storage (no localStorage for sensitive data)
-- ✅ Security headers implementation
-- ✅ Protected data directory
+- ✅ Per-user data isolation
+- ✅ Protected data directory (`.htaccess` blocks direct access)
+- ✅ Secure file permissions guidance
+
+### Account Management
+- ✅ Password change with current password verification
+- ✅ Secure account deletion (password confirmation + data purge)
+- ✅ Data export (CSV and JSON) with authentication
+- ✅ Data import with format auto-detection
+
+### HTTP Security
+- ✅ Security headers implementation (X-Frame-Options, CSP, etc.)
+- ✅ CSRF tokens for all API endpoints
+- ✅ Input validation and sanitization
+- ✅ Proper error handling (no information leakage)
 
 ## Reporting a Vulnerability
 
@@ -214,8 +238,8 @@ As this is a personal project and proof of concept:
 
 | Version | Supported          | Status |
 | ------- | ------------------ | ------ |
-| Current (Secure) | ✅ Production-Ready | Secure for local use; requires HTTPS for public deployment |
-| Legacy (Pre-Oct 2025) | ❌ Deprecated | Plain-text passwords, localStorage only - do not use |
+| 0.9.0+ (Current) | ✅ Production-Ready | Secure for local use; requires HTTPS for public deployment |
+| Legacy (Pre-Oct 2024) | ❌ Deprecated | Plain-text passwords, localStorage only - do not use |
 
 ## Disclaimer
 

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Habit Tracker</title>
+    <title>HabitDot Habit Tracker</title>
     <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -81,12 +81,9 @@
             </svg>
         );
 
-        // Logo placeholder component
-        const LogoPlaceholder = () => (
-            <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-                <rect width="32" height="32" rx="6" fill="#238636"/>
-                <text x="16" y="22" fontSize="18" fontWeight="bold" fill="white" textAnchor="middle">H</text>
-            </svg>
+        // Logo component
+        const Logo = () => (
+            <img src="images/logo.svg" alt="Habit Tracker" className="h-10" />
         );
 
         // Navigation component
@@ -103,14 +100,13 @@
                 <nav className="bg-[#161b22] border-b border-[#30363d]">
                     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                         <div className="flex justify-between items-center h-16">
-                            {/* Logo and brand */}
-                            <div className="flex items-center gap-3">
+                            {/* Logo */}
+                            <div className="flex items-center">
                                 <button
                                     onClick={() => onNavigate(isLoggedIn ? 'tracker' : 'home')}
-                                    className="flex items-center gap-3 focus:outline-none focus:ring-2 focus:ring-[#58a6ff] rounded"
+                                    className="focus:outline-none focus:ring-2 focus:ring-[#58a6ff] rounded"
                                 >
-                                    <LogoPlaceholder />
-                                    <span className="text-white font-semibold text-lg hidden sm:block">Habit Tracker</span>
+                                    <Logo />
                                 </button>
                             </div>
 
@@ -246,7 +242,9 @@
             return (
                 <div className="min-h-screen bg-[#0d1117] flex flex-col items-center justify-center p-8">
                     <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-8 w-full max-w-md" role="main">
-                        <h1 className="text-3xl font-bold text-white mb-6 text-center">Habit Tracker</h1>
+                        <div className="flex justify-center mb-6">
+                            <img src="images/logo.svg" alt="Habit Tracker" className="h-12" />
+                        </div>
                         <form onSubmit={handleSubmit} aria-label={isRegistering ? "Registration form" : "Login form"}>
                             <div className="mb-4">
                                 <label htmlFor="username-input" className="block text-gray-300 mb-2">Username</label>
@@ -381,6 +379,12 @@
             const [deleteMode, setDeleteMode] = useState(false);
             const [confirmDelete, setConfirmDelete] = useState(null);
 
+            // Get color for a habit based on its position in the list
+            const getHabitColor = (habitId) => {
+                const index = habits.findIndex(h => h.id === habitId);
+                return index >= 0 ? colorPalette[index % colorPalette.length] : colorPalette[0];
+            };
+
             const formatDate = (date) => {
                 const year = date.getFullYear();
                 const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -464,7 +468,7 @@
                             setHabitData(data.habitData || {});
                         } else {
                             // Initialize with one default habit
-                            const defaultHabit = { id: 1, name: 'New Habit', color: colorPalette[0] };
+                            const defaultHabit = { id: 1, name: 'New Habit' };
                             setHabits([defaultHabit]);
                             setHabitData({ 1: {} });
                         }
@@ -472,7 +476,7 @@
                 } catch (err) {
                     console.error('Failed to load data:', err);
                     // Initialize with default on error
-                    const defaultHabit = { id: 1, name: 'New Habit', color: colorPalette[0] };
+                    const defaultHabit = { id: 1, name: 'New Habit' };
                     setHabits([defaultHabit]);
                     setHabitData({ 1: {} });
                 }
@@ -508,16 +512,14 @@
 
             const addHabit = () => {
                 if (habits.length >= 6) return;
-                
+
                 const newId = Math.max(...habits.map(h => h.id), 0) + 1;
-                const colorIndex = habits.length % colorPalette.length;
-                
+
                 const newHabit = {
                     id: newId,
-                    name: 'New Habit',
-                    color: colorPalette[colorIndex]
+                    name: 'New Habit'
                 };
-                
+
                 setHabits([...habits, newHabit]);
                 setHabitData({...habitData, [newId]: {}});
             };
@@ -563,10 +565,10 @@
             // Export to CSV
             const exportToCSV = () => {
                 const csvData = [];
-                
+
                 // Header
-                csvData.push(['Habit ID', 'Habit Name', 'Color', 'Date', 'Completed']);
-                
+                csvData.push(['Habit ID', 'Habit Name', 'Date', 'Completed']);
+
                 // Data rows
                 habits.forEach(habit => {
                     const data = habitData[habit.id] || {};
@@ -574,13 +576,12 @@
                         csvData.push([
                             habit.id,
                             habit.name,
-                            habit.color,
                             date,
                             data[date] ? 'true' : 'false'
                         ]);
                     });
                 });
-                
+
                 const csv = Papa.unparse(csvData);
                 const blob = new Blob([csv], { type: 'text/csv' });
                 const url = window.URL.createObjectURL(blob);
@@ -604,18 +605,17 @@
 
                         results.data.forEach(row => {
                             if (!row['Habit ID']) return;
-                            
+
                             const habitId = parseInt(row['Habit ID']);
-                            
+
                             if (!habitMap.has(habitId)) {
                                 habitMap.set(habitId, {
                                     id: habitId,
-                                    name: row['Habit Name'],
-                                    color: row['Color']
+                                    name: row['Habit Name']
                                 });
                                 newHabitData[habitId] = {};
                             }
-                            
+
                             if (row['Date']) {
                                 newHabitData[habitId][row['Date']] = row['Completed'] === 'true';
                             }
@@ -643,9 +643,14 @@
                 }
             };
 
-            const exportData = () => {
-                // Trigger download by navigating to export endpoint
-                window.location.href = 'api/data.php?action=export';
+            const exportDataJSON = () => {
+                // Trigger JSON download
+                window.location.href = 'api/data.php?action=export&format=json';
+            };
+
+            const exportDataCSV = () => {
+                // Trigger CSV download
+                window.location.href = 'api/data.php?action=export&format=csv';
             };
 
             const handleLogin = (user, token) => {
@@ -844,7 +849,7 @@
                                             <div className="flex items-center gap-3">
                                                 <div
                                                     className="w-4 h-4 rounded"
-                                                    style={{ backgroundColor: habit.color }}
+                                                    style={{ backgroundColor: getHabitColor(habit.id) }}
                                                 />
                                                 <h3 className="text-xl font-semibold text-white">{habit.name}</h3>
                                             </div>
@@ -857,7 +862,7 @@
                                                 className="h-full rounded-full transition-all duration-500"
                                                 style={{
                                                     width: `${habit.percentage}%`,
-                                                    backgroundColor: habit.color
+                                                    backgroundColor: getHabitColor(habit.id)
                                                 }}
                                             />
                                         </div>
@@ -968,6 +973,13 @@
                             })
                         });
 
+                        if (!response.ok) {
+                            const text = await response.text();
+                            console.error('Server response:', text);
+                            setPasswordError(`Server error: ${response.status}`);
+                            return;
+                        }
+
                         const data = await response.json();
 
                         if (data.success) {
@@ -979,7 +991,8 @@
                             setPasswordError(data.error || 'Failed to update password');
                         }
                     } catch (err) {
-                        setPasswordError('Network error. Please try again.');
+                        console.error('Password change error:', err);
+                        setPasswordError(`Network error: ${err.message}`);
                     }
                 };
 
@@ -1012,10 +1025,50 @@
                 const handleImportData = async () => {
                     if (!importFile) return;
 
+                    const fileName = importFile.name.toLowerCase();
+                    const isCSV = fileName.endsWith('.csv');
+
                     const reader = new FileReader();
                     reader.onload = async (e) => {
                         try {
-                            const data = JSON.parse(e.target.result);
+                            let data;
+
+                            if (isCSV) {
+                                // Parse CSV
+                                const csvText = e.target.result;
+                                const parsed = Papa.parse(csvText, { header: true });
+
+                                // Convert CSV back to our data format
+                                const habits = [];
+                                const habitData = {};
+                                const habitMap = new Map();
+
+                                parsed.data.forEach(row => {
+                                    if (!row['Habit ID']) return;
+
+                                    const habitId = parseInt(row['Habit ID']);
+
+                                    if (!habitMap.has(habitId)) {
+                                        habitMap.set(habitId, {
+                                            id: habitId,
+                                            name: row['Habit Name']
+                                        });
+                                        habitData[habitId] = {};
+                                    }
+
+                                    if (row['Date'] && row['Completed'] === 'true') {
+                                        habitData[habitId][row['Date']] = true;
+                                    }
+                                });
+
+                                data = {
+                                    habits: Array.from(habitMap.values()),
+                                    habitData: habitData
+                                };
+                            } else {
+                                // Parse JSON
+                                data = JSON.parse(e.target.result);
+                            }
 
                             const response = await fetch('api/data.php?action=import', {
                                 method: 'POST',
@@ -1036,7 +1089,8 @@
                                 alert(result.error || 'Failed to import data');
                             }
                         } catch (err) {
-                            alert('Invalid file format');
+                            console.error('Import error:', err);
+                            alert('Invalid file format: ' + err.message);
                         }
                     };
                     reader.readAsText(importFile);
@@ -1050,97 +1104,89 @@
                             isLoggedIn={isLoggedIn}
                             onLogout={logout}
                         />
-                        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
                             {/* Header */}
-                            <div className="mb-8">
-                                <h1 className="text-4xl font-bold text-white mb-2">Settings</h1>
-                                <p className="text-gray-400">Manage your account and preferences</p>
+                            <div className="mb-6">
+                                <h1 className="text-3xl font-bold text-white mb-1">Settings</h1>
+                                <p className="text-gray-400 text-sm">Manage your account and preferences</p>
                             </div>
 
                             {/* Account Information */}
-                            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 mb-6">
-                                <h2 className="text-xl font-bold text-white mb-4">Account Information</h2>
-
-                                <div className="space-y-4">
+                            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-5 mb-4">
+                                <h2 className="text-lg font-bold text-white mb-3">Account Information</h2>
+                                <div className="grid md:grid-cols-2 gap-3">
                                     <div>
-                                        <label className="block text-gray-400 text-sm mb-2">Username</label>
-                                        <div className="bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-white">
+                                        <label className="block text-gray-400 text-xs mb-1.5">Username</label>
+                                        <div className="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-white text-sm">
                                             {username}
                                         </div>
-                                        <p className="text-gray-500 text-xs mt-1">Usernames cannot be changed</p>
                                     </div>
-
                                     <div className="opacity-50">
-                                        <label className="block text-gray-400 text-sm mb-2">
-                                            Email <span className="text-yellow-500 text-xs">(Coming Soon)</span>
+                                        <label className="block text-gray-400 text-xs mb-1.5">
+                                            Email <span className="text-yellow-500">(Coming Soon)</span>
                                         </label>
-                                        <div className="bg-[#0d1117] border border-[#30363d] rounded-lg px-4 py-3 text-gray-500">
+                                        <div className="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-gray-500 text-sm">
                                             Not set
                                         </div>
-                                        <p className="text-gray-500 text-xs mt-1">Email support will be added in a future update</p>
                                     </div>
                                 </div>
                             </div>
 
                             {/* Change Password */}
-                            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 mb-6">
-                                <h2 className="text-xl font-bold text-white mb-4">Change Password</h2>
-
-                                <form onSubmit={handleChangePassword} className="space-y-4">
-                                    <div>
-                                        <label htmlFor="current-password" className="block text-gray-400 text-sm mb-2">
-                                            Current Password
-                                        </label>
-                                        <input
-                                            id="current-password"
-                                            type="password"
-                                            value={currentPassword}
-                                            onChange={(e) => setCurrentPassword(e.target.value)}
-                                            className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
-                                            required
-                                        />
+                            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-5 mb-4">
+                                <h2 className="text-lg font-bold text-white mb-3">Change Password</h2>
+                                <form onSubmit={handleChangePassword}>
+                                    <div className="grid md:grid-cols-3 gap-3 mb-3">
+                                        <div>
+                                            <label htmlFor="current-password" className="block text-gray-400 text-xs mb-1.5">
+                                                Current Password
+                                            </label>
+                                            <input
+                                                id="current-password"
+                                                type="password"
+                                                value={currentPassword}
+                                                onChange={(e) => setCurrentPassword(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm bg-[#0d1117] border border-[#30363d] rounded text-white focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="new-password" className="block text-gray-400 text-xs mb-1.5">
+                                                New Password
+                                            </label>
+                                            <input
+                                                id="new-password"
+                                                type="password"
+                                                value={newPassword}
+                                                onChange={(e) => setNewPassword(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm bg-[#0d1117] border border-[#30363d] rounded text-white focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]"
+                                                placeholder="Min 8 characters"
+                                                required
+                                            />
+                                        </div>
+                                        <div>
+                                            <label htmlFor="confirm-password" className="block text-gray-400 text-xs mb-1.5">
+                                                Confirm Password
+                                            </label>
+                                            <input
+                                                id="confirm-password"
+                                                type="password"
+                                                value={confirmPassword}
+                                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                                className="w-full px-3 py-2 text-sm bg-[#0d1117] border border-[#30363d] rounded text-white focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]"
+                                                required
+                                            />
+                                        </div>
                                     </div>
-
-                                    <div>
-                                        <label htmlFor="new-password" className="block text-gray-400 text-sm mb-2">
-                                            New Password
-                                        </label>
-                                        <input
-                                            id="new-password"
-                                            type="password"
-                                            value={newPassword}
-                                            onChange={(e) => setNewPassword(e.target.value)}
-                                            className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
-                                            required
-                                        />
-                                        <p className="text-gray-500 text-xs mt-1">Must be at least 8 characters</p>
-                                    </div>
-
-                                    <div>
-                                        <label htmlFor="confirm-password" className="block text-gray-400 text-sm mb-2">
-                                            Confirm New Password
-                                        </label>
-                                        <input
-                                            id="confirm-password"
-                                            type="password"
-                                            value={confirmPassword}
-                                            onChange={(e) => setConfirmPassword(e.target.value)}
-                                            className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
-                                            required
-                                        />
-                                    </div>
-
                                     {passwordError && (
-                                        <p className="text-red-400 text-sm">{passwordError}</p>
+                                        <p className="text-red-400 text-xs mb-2">{passwordError}</p>
                                     )}
-
                                     {passwordSuccess && (
-                                        <p className="text-green-400 text-sm">{passwordSuccess}</p>
+                                        <p className="text-green-400 text-xs mb-2">{passwordSuccess}</p>
                                     )}
-
                                     <button
                                         type="submit"
-                                        className="px-6 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043]"
+                                        className="px-4 py-2 text-sm bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043]"
                                     >
                                         Update Password
                                     </button>
@@ -1148,44 +1194,66 @@
                             </div>
 
                             {/* Data Management */}
-                            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 mb-6">
-                                <h2 className="text-xl font-bold text-white mb-4">Data Management</h2>
-
-                                <div className="space-y-6">
+                            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-5 mb-4">
+                                <h2 className="text-lg font-bold text-white mb-3">Data Management</h2>
+                                <div className="grid md:grid-cols-2 gap-4">
                                     {/* Export */}
                                     <div>
-                                        <h3 className="text-white font-semibold mb-2">Export Data</h3>
-                                        <p className="text-gray-400 text-sm mb-3">
-                                            Download all your habits and tracking data in JSON format.
-                                        </p>
-                                        <button
-                                            onClick={exportData}
-                                            className="flex items-center gap-2 px-6 py-3 bg-[#21262d] hover:bg-[#30363d] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
-                                        >
+                                        <div className="flex items-start gap-2 mb-2">
                                             <DownloadIcon />
-                                            Export Data
-                                        </button>
+                                            <div>
+                                                <h3 className="text-white font-semibold text-sm">Export Data</h3>
+                                                <p className="text-gray-400 text-xs mt-0.5">
+                                                    Download your habit data
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <button
+                                                onClick={exportDataCSV}
+                                                className="w-full px-4 py-2 text-sm bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043]"
+                                            >
+                                                Export as CSV
+                                            </button>
+                                            <button
+                                                onClick={exportDataJSON}
+                                                className="w-full px-4 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] text-white font-semibold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
+                                            >
+                                                Export as JSON
+                                            </button>
+                                        </div>
                                     </div>
 
                                     {/* Import */}
                                     <div>
-                                        <h3 className="text-white font-semibold mb-2">Import Data</h3>
-                                        <p className="text-gray-400 text-sm mb-3">
-                                            Upload a previously exported JSON file to restore your data.
-                                        </p>
-                                        <div className="flex gap-3">
+                                        <div className="flex items-start gap-2 mb-2">
+                                            <UploadIcon />
+                                            <div>
+                                                <h3 className="text-white font-semibold text-sm">Import Data</h3>
+                                                <p className="text-gray-400 text-xs mt-0.5">
+                                                    Restore from CSV or JSON
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div className="flex gap-2">
                                             <input
                                                 type="file"
-                                                accept=".json"
+                                                accept=".csv,.json"
                                                 onChange={(e) => setImportFile(e.target.files[0])}
-                                                className="text-gray-400 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#21262d] file:text-white hover:file:bg-[#30363d] file:cursor-pointer"
+                                                className="hidden"
+                                                id="import-file"
                                             />
+                                            <label
+                                                htmlFor="import-file"
+                                                className="flex-1 px-4 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] text-white font-semibold rounded transition-colors cursor-pointer text-center"
+                                            >
+                                                {importFile ? importFile.name.substring(0, 12) + '...' : 'Choose File'}
+                                            </label>
                                             <button
                                                 onClick={handleImportData}
                                                 disabled={!importFile}
-                                                className="flex items-center gap-2 px-6 py-2 bg-[#21262d] hover:bg-[#30363d] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff] disabled:opacity-50 disabled:cursor-not-allowed"
+                                                className="px-4 py-2 text-sm bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043] disabled:opacity-50 disabled:cursor-not-allowed"
                                             >
-                                                <UploadIcon />
                                                 Import
                                             </button>
                                         </div>
@@ -1194,19 +1262,19 @@
                             </div>
 
                             {/* Danger Zone */}
-                            <div className="bg-[#161b22] border-2 border-[#da3633] rounded-lg p-6">
-                                <h2 className="text-xl font-bold text-red-400 mb-4">⚠️ Danger Zone</h2>
-
-                                <div>
-                                    <h3 className="text-white font-semibold mb-2">Delete Account</h3>
-                                    <p className="text-gray-400 text-sm mb-4">
-                                        Permanently delete your account and all associated data. This action cannot be undone.
-                                    </p>
+                            <div className="bg-[#161b22] border-2 border-[#da3633] rounded-lg p-5">
+                                <div className="flex items-start justify-between">
+                                    <div className="flex-1">
+                                        <h2 className="text-lg font-bold text-red-400 mb-1">⚠️ Danger Zone</h2>
+                                        <p className="text-gray-400 text-xs mb-3">
+                                            Permanently delete your account and all data. This cannot be undone.
+                                        </p>
+                                    </div>
                                     <button
                                         onClick={() => setDeleteConfirmOpen(true)}
-                                        className="px-6 py-3 bg-[#da3633] hover:bg-[#b92e2b] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
+                                        className="px-4 py-2 text-sm bg-[#da3633] hover:bg-[#b92e2b] text-white font-semibold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 whitespace-nowrap ml-4"
                                     >
-                                        Delete My Account
+                                        Delete Account
                                     </button>
                                 </div>
                             </div>
@@ -1355,21 +1423,9 @@
                     />
                     <div className="p-8 flex justify-center">
                         <div className="w-full max-w-7xl">
-                            <header className="flex justify-between items-start mb-8">
-                                <div>
-                                    <h1 className="text-3xl font-bold text-white mb-2">Today's Habits</h1>
-                                    <p className="text-gray-400">{todayFormatted}</p>
-                                </div>
-                                <nav aria-label="Main actions" className="flex items-center gap-2">
-                                    <button
-                                        onClick={exportData}
-                                        className="flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
-                                        aria-label="Export data"
-                                        title="Export Data"
-                                    >
-                                        <DownloadIcon aria-hidden="true" />
-                                    </button>
-                                </nav>
+                            <header className="mb-8">
+                                <h1 className="text-3xl font-bold text-white mb-2">Today's Habits</h1>
+                                <p className="text-gray-400">{todayFormatted}</p>
                             </header>
                         
                         {confirmDelete !== null && (
@@ -1517,7 +1573,7 @@
                                                                     <button
                                                                         key={dayIndex}
                                                                         role="gridcell"
-                                                                        className={`w-[10px] h-[10px] rounded-sm cursor-pointer hover:ring-1 hover:ring-white focus:outline-none focus:ring-2 focus:ring-[#58a6ff] ${
+                                                                        className={`w-[10px] h-[10px] rounded-full cursor-pointer hover:ring-1 hover:ring-white focus:outline-none focus:ring-2 focus:ring-[#58a6ff] ${
                                                                             isFuture
                                                                                 ? 'bg-[#161b22]'
                                                                                 : isCompleted
@@ -1525,7 +1581,7 @@
                                                                                     : 'bg-[#161b22]'
                                                                         } ${isToday ? 'ring-1 ring-blue-500' : ''}`}
                                                                         style={{
-                                                                            backgroundColor: isCompleted && !isFuture ? habit.color : undefined
+                                                                            backgroundColor: isCompleted && !isFuture ? getHabitColor(habit.id) : undefined
                                                                         }}
                                                                         onClick={() => !isFuture && toggleDay(habit.id, dateStr)}
                                                                         disabled={isFuture}

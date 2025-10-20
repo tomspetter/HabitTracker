@@ -1,22 +1,47 @@
-# Habit Tracker 2025
+# HabitDot - Simple Habit Tracking
 
-A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 6 daily habits with color-coded visualization inspired by GitHub's contribution graph.
+**Version: 0.9.0**
 
-> **Note:** Now with secure server-side authentication and data storage!
+A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 6 daily habits with color-coded circular dots inspired by GitHub's contribution graph.
+
+> **Note:** Now with secure authentication, statistics, and account management!
 
 ![Habit Tracker Preview](images/preview.png)
 
 ## Features
 
-- **Year-at-a-Glance View**: GitHub-style contribution graph showing your entire year of habits (365 days)
+### Core Tracking
+- **Year-at-a-Glance View**: 365-day calendar grid showing your entire year
 - **6 Color-Coded Habits**: Track up to 6 different habits with rainbow colors (red, orange, yellow, green, blue, purple)
+- **Circular Dots**: Clean, minimal circular indicators for each day (matching the "HabitDot" brand)
+- **Streak Tracking**: Current streak and best streak for each habit
+- **Quick Daily Tracking**: Check off today's habits with one click
+- **Auto-Save**: Changes are automatically saved to the server
+
+### Statistics & Analytics
+- **Time Period Filters**: View stats for last 7 days, 30 days, or full year
+- **Completion Rates**: Percentage completion for each habit
+- **Overall Dashboard**: Total check-ins, average completion rate, best performing habit
+- **Visual Progress Bars**: Color-coded progress indicators per habit
+
+### Account Management
 - **Secure Authentication**: Server-side user accounts with bcrypt password hashing
-- **Server-Side Storage**: All data stored securely on the server (no localStorage)
+- **Password Management**: Change your password anytime
+- **Data Export**: Download your data as CSV (user-friendly) or JSON (complete backup)
+- **Data Import**: Restore from CSV or JSON files
+- **Account Deletion**: Permanently delete your account and all data
+
+### Security
 - **CSRF Protection**: Protected against cross-site request forgery attacks
 - **Rate Limiting**: Login attempt limiting to prevent brute force attacks
+- **Session Management**: 1-hour session timeout
+- **Server-Side Storage**: All data stored securely on the server (no localStorage)
+- **Protected Data Directory**: `.htaccess` blocks direct file access
+
+### Design
 - **Clean Dark Theme**: GitHub-inspired dark interface for comfortable viewing
-- **Quick Daily Tracking**: Check off today's habits with one click
-- **Mobile Responsive**: Works on desktop and mobile devices
+- **Mobile Responsive**: Works seamlessly on desktop and mobile devices
+- **Responsive Navigation**: Hamburger menu on mobile, full nav on desktop
 
 ## Getting Started
 
@@ -186,13 +211,25 @@ See [SECURITY.md](SECURITY.md) for complete security documentation.
 
 ## Usage
 
+### Habit Tracking
 - **Add a Habit**: Click "Add Habit" button (max 6 habits)
 - **Rename a Habit**: Click on the habit name to edit it
 - **Mark Today**: Use the checkbox next to each habit name
-- **Mark Any Day**: Click on any day cell in the calendar grid
+- **Mark Any Day**: Click on any circular dot in the calendar grid
 - **Remove a Habit**: Click "Remove Habit" button, then click the trash icon next to a habit
 - **Auto-Save**: Changes are automatically saved to the server
-- **Logout**: Click the logout button in the top-right corner
+
+### Navigation
+- **Tracker**: Main habit tracking page (default view)
+- **Statistics**: View analytics and insights for your habits
+- **Settings**: Manage your account, export/import data, change password
+- **Logout**: Click the logout button in the navigation bar
+
+### Data Management
+- **Export as CSV**: Download readable spreadsheet format (open in Excel/Google Sheets)
+- **Export as JSON**: Download complete backup in JSON format
+- **Import Data**: Restore from previously exported CSV or JSON files (auto-detected)
+- **Delete Account**: Permanently remove your account and all associated data
 
 ## Security Features
 
@@ -210,36 +247,31 @@ See [SECURITY.md](SECURITY.md) for full security details.
 
 ## Roadmap
 
-### ✅ Completed Features
+### ✅ Completed Features (v0.9.0)
 
 - Server-side authentication with bcrypt password hashing
 - CSRF protection and rate limiting
-- Year-at-a-glance calendar (365 days)
-- 6 color-coded habits
+- Year-at-a-glance calendar (365 days with circular dots)
+- 6 color-coded habits (rainbow palette)
 - Streak tracking (current streak + best streak)
-- Data export (JSON download)
+- Statistics & Analytics page
+  - Time period filters (7 days, 30 days, year)
+  - Completion percentages and rates
+  - Overall dashboard with best performing habit
+  - Color-coded progress bars
+- Account Settings page
+  - Change password
+  - Export data (CSV and JSON formats)
+  - Import data (auto-detect CSV/JSON)
+  - Delete account with confirmation
+- Responsive navigation (desktop + mobile hamburger menu)
 - Mobile responsive design
 - Auto-save functionality
+- Custom logo integration
 
 ### 🚧 In Development (Priority Order)
 
-#### 1. Statistics & Analytics
-
-- Completion percentage per habit (daily/weekly/monthly)
-- Total completions counter
-- Best performing habit indicator
-- Overall completion rate dashboard
-- Visual charts and graphs
-
-#### 2. Account Settings Page
-
-- Change password functionality
-- Update user profile
-- Delete account (with data removal)
-- Export data management
-- Privacy settings
-
-#### 3. Landing Page (for habitdot.com)
+#### 1. Landing Page (for habitdot.com)
 
 - Hero section with feature highlights
 - Live demo or screenshots
@@ -247,7 +279,7 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - Call-to-action buttons
 - Self-hosting instructions
 
-#### 4. About Page
+#### 2. About Page
 
 - Project information and philosophy
 - Open source details and contribution guidelines
@@ -255,7 +287,7 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - FAQ section
 - Credits and acknowledgments
 
-#### 5. Email Integration (Optional for Self-Hosters)
+#### 3. Email Integration (for v1.0)
 
 - Email field in registration (configurable)
 - Email verification for new accounts
@@ -263,7 +295,7 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - SMTP integration with popular providers
 - Configuration flag to enable/disable email features
 
-### 💡 Future Enhancements (Lower Priority)
+### 💡 Future Enhancements (Post v1.0)
 
 - **Better Mobile UX**: Larger tap targets, swipe gestures, improved scrolling
 - **Dark/Light Theme Toggle**: User-selectable color schemes
@@ -271,7 +303,7 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - **Achievement Badges**: Milestone celebrations (7-day, 30-day streaks, etc.)
 - **Database Support**: Option to use MySQL/PostgreSQL instead of JSON files
 - **Two-Factor Authentication**: Optional 2FA for enhanced security
-- **CSV Export**: Export data in CSV format for spreadsheet analysis
+- **Multi-year Support**: View and track habits across multiple years
 
 ## Technology Stack
 
@@ -295,19 +327,25 @@ HabitTracker/
 ├── config.php          # Configuration and security functions
 ├── api/
 │   ├── auth.php        # Authentication endpoints
-│   ├── data.php        # Data storage endpoints
+│   ├── account.php     # Account management endpoints (password, delete)
+│   ├── data.php        # Data storage/export/import endpoints
 │   └── .htaccess       # Security headers
 ├── data/
 │   ├── .htaccess       # Blocks direct file access
 │   ├── users.json      # User credentials (hashed)
 │   ├── user_*.json     # Per-user habit data
 │   └── login_attempts.json # Rate limiting data
+├── images/
+│   └── logo.svg        # HabitDot logo
+├── README.md           # This file
 └── SECURITY.md         # Security documentation
 ```
 
 ## License
 
-MIT License - Free to use, modify, and distribute.
+**Code:** MIT License - Free to use, modify, and distribute.
+
+**Logo/Branding:** © Tom Spetter - Please use your own branding when forking or deploying your own instance.
 
 ## Contributing
 

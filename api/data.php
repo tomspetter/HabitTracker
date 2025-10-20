@@ -72,7 +72,7 @@ switch ($action) {
         break;
 
     case 'export':
-        // Export user's data as JSON
+        // Export user's data
         if (!file_exists($userDataFile)) {
             http_response_code(404);
             echo json_encode(['success' => false, 'error' => 'No data found']);
@@ -80,15 +80,57 @@ switch ($action) {
         }
 
         $data = json_decode(file_get_contents($userDataFile), true);
+        $format = $_GET['format'] ?? 'json';
 
-        // Set headers for download
-        header('Content-Description: File Transfer');
-        header('Content-Type: application/json');
-        header('Content-Disposition: attachment; filename="habit-tracker-backup-' . date('Y-m-d') . '.json"');
-        header('Content-Length: ' . strlen(json_encode($data, JSON_PRETTY_PRINT)));
-        header('Pragma: public');
+        if ($format === 'csv') {
+            // Export as CSV
+            $csvData = [];
+            $csvData[] = ['Habit ID', 'Habit Name', 'Date', 'Completed'];
 
-        echo json_encode($data, JSON_PRETTY_PRINT);
+            $habits = $data['habits'] ?? [];
+            $habitData = $data['habitData'] ?? [];
+
+            foreach ($habits as $habit) {
+                $habitId = $habit['id'];
+                $habitName = $habit['name'];
+                $dates = $habitData[$habitId] ?? [];
+
+                foreach ($dates as $date => $completed) {
+                    if ($completed) {
+                        $csvData[] = [$habitId, $habitName, $date, 'true'];
+                    }
+                }
+            }
+
+            // Convert to CSV string
+            $output = fopen('php://temp', 'r+');
+            foreach ($csvData as $row) {
+                fputcsv($output, $row);
+            }
+            rewind($output);
+            $csvContent = stream_get_contents($output);
+            fclose($output);
+
+            // Set headers for CSV download
+            header('Content-Description: File Transfer');
+            header('Content-Type: text/csv');
+            header('Content-Disposition: attachment; filename="habit-tracker-backup-' . date('Y-m-d') . '.csv"');
+            header('Content-Length: ' . strlen($csvContent));
+            header('Pragma: public');
+
+            echo $csvContent;
+        } else {
+            // Export as JSON (default)
+            $jsonContent = json_encode($data, JSON_PRETTY_PRINT);
+
+            header('Content-Description: File Transfer');
+            header('Content-Type: application/json');
+            header('Content-Disposition: attachment; filename="habit-tracker-backup-' . date('Y-m-d') . '.json"');
+            header('Content-Length: ' . strlen($jsonContent));
+            header('Pragma: public');
+
+            echo $jsonContent;
+        }
         break;
 
     case 'import':
