@@ -8,11 +8,17 @@ This habit tracker uses PHP-based server-side authentication with proper passwor
 
 ## Implemented Security Features
 
-### Authentication
+### Authentication & Email Verification
+- ✅ **Email verification**: Required for new account registration using 6-digit codes
+- ✅ **Password reset flow**: Secure 3-step password recovery with verification codes
 - ✅ **Password hashing**: Passwords are hashed using PHP's `password_hash()` with bcrypt (PASSWORD_DEFAULT)
 - ✅ **Session management**: Secure server-side sessions with httponly cookies
 - ✅ **CSRF protection**: CSRF tokens required for all data-modifying operations
-- ✅ **Rate limiting**: Login attempts are limited (5 attempts, 15-minute lockout)
+- ✅ **Login rate limiting**: 5 failed attempts trigger 15-minute lockout
+- ✅ **Code rate limiting**: 60-second cooldown between verification code resends
+- ✅ **Code expiration**: Verification codes expire after 15 minutes, reset tokens after 5 minutes
+- ✅ **Attempt limiting**: Maximum 5 attempts per verification code before requiring new code
+- ✅ **Email enumeration prevention**: Password reset doesn't reveal whether user exists
 - ✅ **Session timeout**: Sessions expire after 1 hour of inactivity
 - ✅ **No client-side password storage**: All authentication happens server-side
 
@@ -48,21 +54,31 @@ If deploying to a public web server, **you MUST complete this checklist:**
 
 #### **Critical Requirements (Non-Negotiable)**
 
-1. **HTTPS/SSL Certificate**
+1. **Email Service Configuration**
+   - ⚠️ **Required for registration and password reset**
+   - Copy `app/email_config.sample.php` to `app/email_config.php`
+   - Add your Brevo API key and sender email
+   - Verify your domain with SPF, DKIM, and DMARC records
+   - Set `EMAIL_ENABLED = false` to disable email features (registration will fail)
+   - Reason: Users cannot register or reset passwords without email verification
+
+2. **HTTPS/SSL Certificate**
    - ❌ **NEVER deploy without HTTPS**
    - Use Let's Encrypt (free) or purchase certificate
    - Our code automatically enables secure cookies when HTTPS is detected
    - Reason: Prevents session hijacking and man-in-the-middle attacks
 
-2. **Strict File Permissions**
+3. **Strict File Permissions**
    ```bash
-   sudo chmod 700 data/                    # Owner read/write/execute only
-   sudo chmod 600 data/*.json             # Owner read/write only
-   sudo chown www-data:www-data data/     # Web server owns files
+   sudo chmod 700 app/data/                    # Owner read/write/execute only
+   sudo chmod 600 app/data/*.json             # Owner read/write only
+   sudo chmod 600 app/email_config.php        # Protect API keys
+   sudo chown www-data:www-data app/data/     # Web server owns files
+   sudo chown www-data:www-data app/email_config.php
    ```
-   - Reason: Prevents other users on shared hosting from reading password hashes
+   - Reason: Prevents other users on shared hosting from reading password hashes and API keys
 
-3. **PHP Production Configuration**
+4. **PHP Production Configuration**
    ```ini
    display_errors = Off          # Don't show errors to users
    log_errors = On              # Log errors to file instead
@@ -131,10 +147,11 @@ If deploying to a public web server, **you MUST complete this checklist:**
     - Add TOTP support (Google Authenticator, Authy)
     - Requires additional development
 
-13. **Email Verification & Password Reset**
-    - Verify email addresses during registration
-    - Add "forgot password" functionality
-    - Requires mail server configuration
+13. ~~**Email Verification & Password Reset**~~ ✅ **COMPLETED in v1.0.0**
+    - ✅ Email verification for new accounts (6-digit codes)
+    - ✅ Password reset with verification codes
+    - ✅ Brevo API integration
+    - ✅ Rate limiting and code expiration
 
 ### For Developers
 
@@ -147,20 +164,39 @@ If forking this project for commercial/SaaS use, consider:
 - DDoS protection (Cloudflare, AWS Shield)
 - Compliance certifications (SOC 2, GDPR, etc.)
 
+## Email Security Features (v1.0.0)
+
+✅ **Implemented Email Security:**
+
+### Email Verification System
+- **6-digit verification codes** sent via Brevo API
+- **Code expiration**: 15-minute validity window
+- **Attempt limiting**: Maximum 5 attempts per code
+- **Rate limiting**: 60-second cooldown between resends
+- **Secure storage**: Verification codes hashed and stored server-side
+
+### Password Reset Flow
+- **3-step verification process**:
+  1. Request reset code (sent to email)
+  2. Verify 6-digit code
+  3. Set new password with temporary token (5-minute expiry)
+- **Email enumeration prevention**: Doesn't reveal if email exists
+- **Token expiration**: Reset tokens expire after 5 minutes
+- **Auto-cleanup**: All codes cleared after successful password reset
+
+### Email Configuration
+- **Optional feature**: Can be disabled via `EMAIL_ENABLED` flag
+- **API key protection**: `email_config.php` excluded from git
+- **Brevo API integration**: Transactional email service
+- **DNS authentication**: Supports SPF, DKIM, DMARC records
+
+⚠️ **Note**: Email features are OPTIONAL. Self-hosters can choose to:
+- Enable email features (requires Brevo API key setup)
+- Disable email (set `EMAIL_ENABLED = false` - registration will fail)
+
 ## Upcoming Security Enhancements
 
 The following security features are planned for future releases:
-
-### Email Integration (Optional)
-- **Email verification** for new accounts
-- **Password reset** via secure token links
-- **Email validation** and sanitization
-- **SMTP security** best practices
-- **Configuration flags** to enable/disable email features (for self-hosters)
-
-⚠️ **Note**: When email integration is added, it will be OPTIONAL via configuration. Self-hosters can choose to:
-- Enable email features (requires SMTP setup)
-- Disable email (username-only, current behavior)
 
 ### Data Export Security
 - ✅ **CSV Export**: User-friendly format for viewing in spreadsheets
@@ -238,7 +274,7 @@ As this is a personal project and proof of concept:
 
 | Version | Supported          | Status |
 | ------- | ------------------ | ------ |
-| 0.9.0+ (Current) | ✅ Production-Ready | Secure for local use; requires HTTPS for public deployment |
+| 1.0.0+ (Current) | ✅ Production-Ready | Secure for local use; requires HTTPS for public deployment |
 | Legacy (Pre-Oct 2024) | ❌ Deprecated | Plain-text passwords, localStorage only - do not use |
 
 ## Disclaimer

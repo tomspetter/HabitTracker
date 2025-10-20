@@ -208,3 +208,24 @@ function removePendingRegistration($email) {
 
     return file_put_contents($pendingFile, json_encode($pending, JSON_PRETTY_PRINT)) !== false;
 }
+
+/**
+ * Clear all verification codes for an email
+ *
+ * @param string $email User's email
+ * @return bool Success
+ */
+function clearVerificationCodes($email) {
+    $codesFile = __DIR__ . '/data/verification_codes.json';
+
+    if (!file_exists($codesFile)) {
+        return true;
+    }
+
+    $codesData = file_get_contents($codesFile);
+    $codes = json_decode($codesData, true) ?: [];
+
+    unset($codes[$email]);
+
+    return file_put_contents($codesFile, json_encode($codes, JSON_PRETTY_PRINT)) !== false;
+}

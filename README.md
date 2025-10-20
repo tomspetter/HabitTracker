@@ -1,6 +1,6 @@
 # HabitDot - Simple Habit Tracking
 
-**Version: 0.9.0**
+**Version: 1.0.0**
 
 A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 6 daily habits with color-coded circular dots inspired by GitHub's contribution graph.
 
@@ -25,18 +25,25 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
 - **Visual Progress Bars**: Color-coded progress indicators per habit
 
 ### Account Management
-- **Secure Authentication**: Server-side user accounts with bcrypt password hashing
-- **Password Management**: Change your password anytime
+- **Email-Based Authentication**: Secure user accounts with email verification
+- **Email Verification**: 6-digit verification codes sent via Brevo API
+- **Password Reset**: Secure password recovery with 6-digit verification codes
+- **Password Management**: Change your password anytime from settings
 - **Data Export**: Download your data as CSV (user-friendly) or JSON (complete backup)
 - **Data Import**: Restore from CSV or JSON files
 - **Account Deletion**: Permanently delete your account and all data
 
 ### Security
+- **Email Verification**: Required email verification for new account registration
+- **Password Reset Flow**: Secure 3-step password recovery with verification codes
 - **CSRF Protection**: Protected against cross-site request forgery attacks
-- **Rate Limiting**: Login attempt limiting to prevent brute force attacks
-- **Session Management**: 1-hour session timeout
+- **Rate Limiting**: Login attempt limiting to prevent brute force attacks (5 attempts, 15-min lockout)
+- **Code Expiration**: Verification codes expire after 15 minutes
+- **Attempt Limiting**: Maximum 5 attempts per verification code
+- **Session Management**: 1-hour session timeout with automatic renewal
 - **Server-Side Storage**: All data stored securely on the server (no localStorage)
 - **Protected Data Directory**: `.htaccess` blocks direct file access
+- **Email Enumeration Prevention**: Password reset doesn't reveal if email exists
 
 ### Design
 - **Clean Dark Theme**: GitHub-inspired dark interface for comfortable viewing
@@ -49,29 +56,56 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
 
 - PHP 7.4 or higher
 - Web server (Apache recommended for `.htaccess` support)
+- Email service account (Brevo/Sendinblue recommended - free tier available)
+- cURL extension enabled in PHP
 
 ### Installation
 
 1. Download or clone this repository
 2. Place files in your web server directory
 3. Ensure the `app/data/` directory is writable by the web server
-4. Start your web server (or use PHP's built-in server for testing):
+4. **Configure Email Service** (required for registration and password reset):
+   ```bash
+   cd app/
+   cp email_config.sample.php email_config.php
+   nano email_config.php  # Edit with your Brevo API key and settings
+   ```
+
+   To get a Brevo API key:
+   - Sign up at [Brevo](https://www.brevo.com) (free tier: 300 emails/day)
+   - Go to **Settings** → **API Keys** → Create a new API key
+   - Add your sender email and verify your domain (see DNS setup section below)
+
+5. Start your web server (or use PHP's built-in server for testing):
    ```bash
    php -S localhost:8000
    ```
-5. Open `http://localhost:8000` in your web browser (marketing site)
-6. Click "Launch App" to access the habit tracker at `http://localhost:8000/app/`
-7. Click "Register" to create your account
-8. Start tracking your habits!
+6. Open `http://localhost:8000` in your web browser (marketing site)
+7. Click "Launch App" to access the habit tracker at `http://localhost:8000/app/`
+8. Click "Register" to create your account
+9. Check your email for the 6-digit verification code
+10. Start tracking your habits!
+
+### Email DNS Setup (for production)
+
+For emails to be trusted and not marked as spam, add these DNS records to your domain:
+
+1. **SPF Record** (authorize Brevo to send on your behalf)
+2. **DKIM Record** (cryptographically sign your emails)
+3. **DMARC Record** (policy for handling unauthenticated emails)
+
+Brevo provides these records in **Senders & IP** → **Domains** after you add your domain. Add them as TXT records in your DNS settings.
 
 ### First Time Setup
 
 1. Navigate to the app in your browser
 2. Click "Don't have an account? Register"
-3. Choose a username (min 3 characters)
-4. Choose a password (min 8 characters)
-5. Click "Register"
-6. Log in with your new credentials
+3. Enter your email address
+4. Choose a strong password (min 8 characters)
+5. Click "Send Verification Code"
+6. Check your email for the 6-digit code
+7. Enter the code to complete registration
+8. Start tracking your habits!
 
 ## Deploying to a Public Server
 
@@ -236,11 +270,17 @@ See [SECURITY.md](SECURITY.md) for complete security documentation.
 
 ✅ **Implemented Security Measures:**
 
+- Email verification required for new accounts (6-digit codes)
+- Secure password reset flow with verification codes
 - Bcrypt password hashing
 - Server-side session management
-- CSRF token protection
+- CSRF token protection on all state-changing requests
 - Login rate limiting (5 attempts, 15-minute lockout)
-- Session timeout (1 hour)
+- Verification code rate limiting (60-second resend cooldown)
+- Session timeout (1 hour with automatic renewal)
+- Code expiration (15 minutes for verification, 5 minutes for reset tokens)
+- Maximum attempt limiting (5 attempts per verification code)
+- Email enumeration prevention (password reset doesn't reveal if user exists)
 - Protected data directory (`.htaccess` blocks direct access)
 - Security headers (X-Frame-Options, XSS Protection, etc.)
 
@@ -248,53 +288,42 @@ See [SECURITY.md](SECURITY.md) for full security details.
 
 ## Roadmap
 
-### ✅ Completed Features (v0.9.0)
+### ✅ Completed Features (v1.0.0)
 
-- Server-side authentication with bcrypt password hashing
-- CSRF protection and rate limiting
-- Year-at-a-glance calendar (365 days with circular dots)
-- 6 color-coded habits (rainbow palette)
-- Streak tracking (current streak + best streak)
-- Statistics & Analytics page
+- **Email-Based Authentication System**
+  - Email verification with 6-digit codes (via Brevo API)
+  - Secure password reset flow with verification codes
+  - Email enumeration prevention
+  - Rate limiting and code expiration
+- **User Account Management**
+  - Server-side authentication with bcrypt password hashing
+  - CSRF protection on all state-changing requests
+  - Login rate limiting (5 attempts, 15-min lockout)
+  - Session management with 1-hour timeout
+- **Habit Tracking**
+  - Year-at-a-glance calendar (365 days with circular dots)
+  - 6 color-coded habits (rainbow palette)
+  - Streak tracking (current streak + best streak)
+  - Auto-save functionality
+- **Statistics & Analytics Page**
   - Time period filters (7 days, 30 days, year)
   - Completion percentages and rates
   - Overall dashboard with best performing habit
   - Color-coded progress bars
-- Account Settings page
+- **Account Settings Page**
   - Change password
   - Export data (CSV and JSON formats)
   - Import data (auto-detect CSV/JSON)
   - Delete account with confirmation
-- Responsive navigation (desktop + mobile hamburger menu)
-- Mobile responsive design
-- Auto-save functionality
-- Custom logo integration
-
-### 🚧 In Development (Priority Order)
-
-#### 1. Landing Page (for habitdot.com)
-
-- Hero section with feature highlights
-- Live demo or screenshots
-- Roadmap display
-- Call-to-action buttons
-- Self-hosting instructions
-
-#### 2. About Page
-
-- Project information and philosophy
-- Open source details and contribution guidelines
-- Contact information
-- FAQ section
-- Credits and acknowledgments
-
-#### 3. Email Integration (for v1.0)
-
-- Email field in registration (configurable)
-- Email verification for new accounts
-- Password reset via email
-- SMTP integration with popular providers
-- Configuration flag to enable/disable email features
+- **Marketing Site**
+  - Professional landing page with feature highlights
+  - About, Contact, and documentation pages
+  - HabitDot branding and logo
+- **Design & UX**
+  - Responsive navigation (desktop + mobile hamburger menu)
+  - Mobile responsive design
+  - GitHub-inspired dark theme
+  - Accessible UI with ARIA labels
 
 ### 💡 Future Enhancements (Post v1.0)
 
