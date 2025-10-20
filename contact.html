@@ -1,214 +1,398 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Contact - HabitDot</title>
-    <meta name="description" content="Get in touch with the HabitDot team. Report bugs, suggest features, or ask questions.">
-    <script defer src="https://cloud.umami.is/script.js" data-website-id="ee7b1e6e-fe20-470d-ba68-9f16c7309254"></script>
+    <meta
+      name="description"
+      content="Get in touch with the HabitDot team. Report bugs, suggest features, or ask questions."
+    />
+    <script
+      defer
+      src="https://cloud.umami.is/script.js"
+      data-website-id="ee7b1e6e-fe20-470d-ba68-9f16c7309254"
+    ></script>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
+      body {
+        margin: 0;
+        padding: 0;
+      }
     </style>
-</head>
-<body class="bg-[#0d1117] text-gray-300">
+  </head>
+  <body class="bg-[#0d1117] text-gray-300">
     <!-- Navigation -->
     <nav class="bg-[#161b22] border-b border-[#30363d]">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between items-center h-16">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <a href="/" class="focus:outline-none focus:ring-2 focus:ring-[#58a6ff] rounded">
-                        <img src="images/logo.svg" alt="HabitDot" class="h-10">
-                    </a>
-                </div>
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <!-- Logo -->
+          <div class="flex items-center">
+            <a
+              href="/"
+              class="focus:outline-none focus:ring-2 focus:ring-[#58a6ff] rounded"
+            >
+              <img src="images/logo.svg" alt="HabitDot" class="h-10" />
+            </a>
+          </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden md:flex items-center gap-1">
-                    <a href="/" class="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors">Home</a>
-                    <a href="about.html" class="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors">About</a>
-                    <a href="contact.html" class="px-4 py-2 rounded-lg text-white bg-[#21262d] font-semibold">Contact</a>
-                    <a href="app/" class="ml-2 px-6 py-2 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors">Launch App</a>
-                </div>
+          <!-- Navigation Links -->
+          <div class="hidden md:flex items-center gap-1">
+            <a
+              href="/"
+              class="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors"
+              >Home</a
+            >
+            <a
+              href="about.html"
+              class="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors"
+              >About</a
+            >
+            <a
+              href="contact.html"
+              class="px-4 py-2 rounded-lg text-white bg-[#21262d] font-semibold"
+              >Contact</a
+            >
+            <a
+              href="https://app.habitdot.com"
+              class="ml-2 px-6 py-2 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors"
+              >Launch App</a
+            >
+          </div>
 
-                <!-- Mobile menu button -->
-                <div class="md:hidden">
-                    <button id="mobile-menu-button" class="text-gray-300 hover:text-white p-2 focus:outline-none focus:ring-2 focus:ring-[#58a6ff] rounded" aria-label="Toggle menu">
-                        <svg id="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="3" y1="12" x2="21" y2="12"></line>
-                            <line x1="3" y1="6" x2="21" y2="6"></line>
-                            <line x1="3" y1="18" x2="21" y2="18"></line>
-                        </svg>
-                        <svg id="close-icon" class="hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <line x1="18" y1="6" x2="6" y2="18"></line>
-                            <line x1="6" y1="6" x2="18" y2="18"></line>
-                        </svg>
-                    </button>
-                </div>
-            </div>
+          <!-- Mobile menu button -->
+          <div class="md:hidden">
+            <button
+              id="mobile-menu-button"
+              class="text-gray-300 hover:text-white p-2 focus:outline-none focus:ring-2 focus:ring-[#58a6ff] rounded"
+              aria-label="Toggle menu"
+            >
+              <svg
+                id="menu-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="3" y1="12" x2="21" y2="12"></line>
+                <line x1="3" y1="6" x2="21" y2="6"></line>
+                <line x1="3" y1="18" x2="21" y2="18"></line>
+              </svg>
+              <svg
+                id="close-icon"
+                class="hidden"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
         </div>
+      </div>
 
-        <!-- Mobile menu -->
-        <div id="mobile-menu" class="hidden md:hidden border-t border-[#30363d] bg-[#0d1117]">
-            <div class="px-2 pt-2 pb-3 space-y-1">
-                <a href="/" class="block w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors">Home</a>
-                <a href="about.html" class="block w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors">About</a>
-                <a href="contact.html" class="block w-full text-left px-4 py-3 rounded-lg bg-[#21262d] text-white font-semibold">Contact</a>
-                <a href="app/" class="block w-full text-center px-4 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors">Launch App</a>
-            </div>
+      <!-- Mobile menu -->
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden border-t border-[#30363d] bg-[#0d1117]"
+      >
+        <div class="px-2 pt-2 pb-3 space-y-1">
+          <a
+            href="/"
+            class="block w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors"
+            >Home</a
+          >
+          <a
+            href="about.html"
+            class="block w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors"
+            >About</a
+          >
+          <a
+            href="contact.html"
+            class="block w-full text-left px-4 py-3 rounded-lg bg-[#21262d] text-white font-semibold"
+            >Contact</a
+          >
+          <a
+            href="https://app.habitdot.com"
+            class="block w-full text-center px-4 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors"
+            >Launch App</a
+          >
         </div>
+      </div>
     </nav>
 
     <!-- Main Content -->
     <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-        <h1 class="text-4xl md:text-5xl font-bold text-white mb-8">Get in Touch</h1>
+      <h1 class="text-4xl md:text-5xl font-bold text-white mb-8">
+        Get in Touch
+      </h1>
 
-        <div class="grid md:grid-cols-2 gap-8 mb-12">
-            <!-- Contact Info -->
-            <div class="space-y-6">
-                <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
-                    <h2 class="text-xl font-bold text-white mb-4">Report a Bug or Request a Feature</h2>
-                    <p class="text-gray-300 mb-4">
-                        Found a bug or have an idea for a new feature? Open an issue on GitHub!
-                    </p>
-                    <a href="https://github.com/tomspetter/HabitTracker/issues" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-6 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors">
-                        Open GitHub Issue →
-                    </a>
-                </section>
-
-                <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
-                    <h2 class="text-xl font-bold text-white mb-4">Support the Project</h2>
-                    <p class="text-gray-300 mb-4">
-                        If you find HabitDot useful, consider buying me a coffee to support continued development!
-                    </p>
-                    <a href="https://buymeacoffee.com/tomspetter" target="_blank" rel="noopener noreferrer" class="inline-flex items-center px-6 py-3 bg-[#FFDD00] hover:bg-[#FFED4E] text-black font-semibold rounded-lg transition-colors">
-                        ☕ Buy Me a Coffee
-                    </a>
-                </section>
-
-                <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
-                    <h2 class="text-xl font-bold text-white mb-4">Follow Development</h2>
-                    <p class="text-gray-300 mb-4">
-                        Stay updated with the latest features and improvements:
-                    </p>
-                    <div class="space-y-3">
-                        <a href="https://github.com/tomspetter/HabitTracker" target="_blank" rel="noopener noreferrer" class="block text-[#58a6ff] hover:underline">
-                            ⭐ Star on GitHub →
-                        </a>
-                        <a href="https://github.com/tomspetter/HabitTracker/releases" target="_blank" rel="noopener noreferrer" class="block text-[#58a6ff] hover:underline">
-                            📦 View Releases →
-                        </a>
-                        <a href="https://github.com/tomspetter" target="_blank" rel="noopener noreferrer" class="block text-[#58a6ff] hover:underline">
-                            👤 Follow Tom Spetter →
-                        </a>
-                    </div>
-                </section>
-            </div>
-
-            <!-- FAQ -->
-            <div>
-                <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
-                    <h2 class="text-xl font-bold text-white mb-6">Frequently Asked Questions</h2>
-
-                    <div class="space-y-6">
-                        <div>
-                            <h3 class="text-lg font-semibold text-white mb-2">Is HabitDot really free?</h3>
-                            <p class="text-gray-300">
-                                Yes! HabitDot is completely free and open source under the MIT license. You can use it, modify it, and even self-host it without any cost.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 class="text-lg font-semibold text-white mb-2">Can I self-host HabitDot?</h3>
-                            <p class="text-gray-300">
-                                Absolutely! Check the <a href="https://github.com/tomspetter/HabitTracker#readme" target="_blank" rel="noopener noreferrer" class="text-[#58a6ff] hover:underline">README</a> for installation and deployment instructions.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 class="text-lg font-semibold text-white mb-2">Is my data secure?</h3>
-                            <p class="text-gray-300">
-                                Yes. HabitDot uses bcrypt password hashing, CSRF protection, rate limiting, and secure sessions. You can also export your data at any time.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 class="text-lg font-semibold text-white mb-2">Can I contribute to the project?</h3>
-                            <p class="text-gray-300">
-                                Yes! Contributions are welcome. Check the <a href="https://github.com/tomspetter/HabitTracker" target="_blank" rel="noopener noreferrer" class="text-[#58a6ff] hover:underline">GitHub repository</a> to get started.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 class="text-lg font-semibold text-white mb-2">How do I report a bug?</h3>
-                            <p class="text-gray-300">
-                                Open an issue on <a href="https://github.com/tomspetter/HabitTracker/issues" target="_blank" rel="noopener noreferrer" class="text-[#58a6ff] hover:underline">GitHub Issues</a> with a description of the bug and steps to reproduce it.
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 class="text-lg font-semibold text-white mb-2">Will there be a mobile app?</h3>
-                            <p class="text-gray-300">
-                                HabitDot is mobile-responsive and works great in mobile browsers. A native mobile app is not currently planned, but the project is open source—feel free to build one!
-                            </p>
-                        </div>
-
-                        <div>
-                            <h3 class="text-lg font-semibold text-white mb-2">How can I support the project?</h3>
-                            <p class="text-gray-300">
-                                You can <a href="https://buymeacoffee.com/tomspetter" target="_blank" rel="noopener noreferrer" class="text-[#58a6ff] hover:underline">buy me a coffee</a>, star the project on GitHub, share it with others, or contribute code!
-                            </p>
-                        </div>
-                    </div>
-                </section>
-            </div>
-        </div>
-
-        <!-- Direct Contact Note -->
-        <div class="bg-[#161b22] border border-[#30363d] rounded-lg p-8 text-center">
-            <h2 class="text-2xl font-bold text-white mb-4">Need Direct Contact?</h2>
+      <div class="grid md:grid-cols-2 gap-8 mb-12">
+        <!-- Contact Info -->
+        <div class="space-y-6">
+          <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
+            <h2 class="text-xl font-bold text-white mb-4">
+              Report a Bug or Request a Feature
+            </h2>
             <p class="text-gray-300 mb-4">
-                For general inquiries, please use <a href="https://github.com/tomspetter/HabitTracker/issues" target="_blank" rel="noopener noreferrer" class="text-[#58a6ff] hover:underline">GitHub Issues</a> so the community can benefit from the discussion.
+              Found a bug or have an idea for a new feature? Open an issue on
+              GitHub!
             </p>
-            <p class="text-gray-400 text-sm">
-                For private matters, you can reach out via GitHub profile contact options.
+            <a
+              href="https://github.com/tomspetter/HabitTracker/issues"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center px-6 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors"
+            >
+              Open GitHub Issue →
+            </a>
+          </section>
+
+          <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
+            <h2 class="text-xl font-bold text-white mb-4">
+              Support the Project
+            </h2>
+            <p class="text-gray-300 mb-4">
+              If you find HabitDot useful, consider buying me a coffee to
+              support continued development!
             </p>
+            <a
+              href="https://buymeacoffee.com/tomspetter"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="inline-flex items-center px-6 py-3 bg-[#FFDD00] hover:bg-[#FFED4E] text-black font-semibold rounded-lg transition-colors"
+            >
+              ☕ Buy Me a Coffee
+            </a>
+          </section>
+
+          <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
+            <h2 class="text-xl font-bold text-white mb-4">
+              Follow Development
+            </h2>
+            <p class="text-gray-300 mb-4">
+              Stay updated with the latest features and improvements:
+            </p>
+            <div class="space-y-3">
+              <a
+                href="https://github.com/tomspetter/HabitTracker"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="block text-[#58a6ff] hover:underline"
+              >
+                ⭐ Star on GitHub →
+              </a>
+              <a
+                href="https://github.com/tomspetter/HabitTracker/releases"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="block text-[#58a6ff] hover:underline"
+              >
+                📦 View Releases →
+              </a>
+              <a
+                href="https://github.com/tomspetter"
+                target="_blank"
+                rel="noopener noreferrer"
+                class="block text-[#58a6ff] hover:underline"
+              >
+                👤 Follow Tom Spetter →
+              </a>
+            </div>
+          </section>
         </div>
+
+        <!-- FAQ -->
+        <div>
+          <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
+            <h2 class="text-xl font-bold text-white mb-6">
+              Frequently Asked Questions
+            </h2>
+
+            <div class="space-y-6">
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-2">
+                  Is HabitDot really free?
+                </h3>
+                <p class="text-gray-300">
+                  Yes! HabitDot is completely free and open source under the MIT
+                  license. You can use it, modify it, and even self-host it
+                  without any cost.
+                </p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-2">
+                  Can I self-host HabitDot?
+                </h3>
+                <p class="text-gray-300">
+                  Absolutely! Check the
+                  <a
+                    href="https://github.com/tomspetter/HabitTracker#readme"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-[#58a6ff] hover:underline"
+                    >README</a
+                  >
+                  for installation and deployment instructions.
+                </p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-2">
+                  Is my data secure?
+                </h3>
+                <p class="text-gray-300">
+                  Yes. HabitDot uses bcrypt password hashing, CSRF protection,
+                  rate limiting, and secure sessions. You can also export your
+                  data at any time.
+                </p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-2">
+                  Can I contribute to the project?
+                </h3>
+                <p class="text-gray-300">
+                  Yes! Contributions are welcome. Check the
+                  <a
+                    href="https://github.com/tomspetter/HabitTracker"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-[#58a6ff] hover:underline"
+                    >GitHub repository</a
+                  >
+                  to get started.
+                </p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-2">
+                  How do I report a bug?
+                </h3>
+                <p class="text-gray-300">
+                  Open an issue on
+                  <a
+                    href="https://github.com/tomspetter/HabitTracker/issues"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-[#58a6ff] hover:underline"
+                    >GitHub Issues</a
+                  >
+                  with a description of the bug and steps to reproduce it.
+                </p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-2">
+                  Will there be a mobile app?
+                </h3>
+                <p class="text-gray-300">
+                  HabitDot is mobile-responsive and works great in mobile
+                  browsers. A native mobile app is not currently planned, but
+                  the project is open source—feel free to build one!
+                </p>
+              </div>
+
+              <div>
+                <h3 class="text-lg font-semibold text-white mb-2">
+                  How can I support the project?
+                </h3>
+                <p class="text-gray-300">
+                  You can
+                  <a
+                    href="https://buymeacoffee.com/tomspetter"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="text-[#58a6ff] hover:underline"
+                    >buy me a coffee</a
+                  >, star the project on GitHub, share it with others, or
+                  contribute code!
+                </p>
+              </div>
+            </div>
+          </section>
+        </div>
+      </div>
+
+      <!-- Direct Contact Note -->
+      <div
+        class="bg-[#161b22] border border-[#30363d] rounded-lg p-8 text-center"
+      >
+        <h2 class="text-2xl font-bold text-white mb-4">Need Direct Contact?</h2>
+        <p class="text-gray-300 mb-4">
+          For general inquiries, please use
+          <a
+            href="https://github.com/tomspetter/HabitTracker/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[#58a6ff] hover:underline"
+            >GitHub Issues</a
+          >
+          so the community can benefit from the discussion.
+        </p>
+        <p class="text-gray-400 text-sm">
+          For private matters, you can reach out via GitHub profile contact
+          options.
+        </p>
+      </div>
     </main>
 
     <!-- Footer -->
-    <footer class="mt-16 py-8 border-t border-[#30363d] text-center text-gray-400 text-sm">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-3">
-                <a href="https://github.com/tomspetter/HabitTracker" target="_blank" rel="noopener noreferrer" class="text-[#58a6ff] hover:underline">
-                    View on GitHub
-                </a>
-                <span class="hidden sm:inline">•</span>
-                <a href="https://buymeacoffee.com/tomspetter" target="_blank" rel="noopener noreferrer" class="text-[#58a6ff] hover:underline">
-                    ☕ Buy Me a Coffee
-                </a>
-            </div>
-            <p class="text-xs text-gray-500">
-                © 2025 Tom Spetter • Open Source (MIT)
-            </p>
+    <footer
+      class="mt-16 py-8 border-t border-[#30363d] text-center text-gray-400 text-sm"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div
+          class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-3"
+        >
+          <a
+            href="https://github.com/tomspetter/HabitTracker"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[#58a6ff] hover:underline"
+          >
+            View on GitHub
+          </a>
+          <span class="hidden sm:inline">•</span>
+          <a
+            href="https://buymeacoffee.com/tomspetter"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[#58a6ff] hover:underline"
+          >
+            ☕ Buy Me a Coffee
+          </a>
         </div>
+        <p class="text-xs text-gray-500">
+          © 2025 Tom Spetter • Open Source (MIT)
+        </p>
+      </div>
     </footer>
 
     <!-- Mobile Menu Script -->
     <script>
-        const mobileMenuButton = document.getElementById('mobile-menu-button');
-        const mobileMenu = document.getElementById('mobile-menu');
-        const menuIcon = document.getElementById('menu-icon');
-        const closeIcon = document.getElementById('close-icon');
+      const mobileMenuButton = document.getElementById("mobile-menu-button");
+      const mobileMenu = document.getElementById("mobile-menu");
+      const menuIcon = document.getElementById("menu-icon");
+      const closeIcon = document.getElementById("close-icon");
 
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-            menuIcon.classList.toggle('hidden');
-            closeIcon.classList.toggle('hidden');
-        });
+      mobileMenuButton.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+        menuIcon.classList.toggle("hidden");
+        closeIcon.classList.toggle("hidden");
+      });
     </script>
-</body>
+  </body>
 </html>
