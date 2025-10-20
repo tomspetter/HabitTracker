@@ -28,6 +28,17 @@ Thumbs.db
 data/users.json
 data/user_*.json
 data/login_attempts.json
+data/pending_registrations.json
+data/verification_codes.json
+data/backup_*/
 
 # Email configuration (contains API keys!)
 app/email_config.php
+
+# MySQL backups (may contain sensitive data)
+*.sql.backup
+backup_*.sql
+
+# Database configuration with credentials
+app/.htaccess
+app/db_config.php
