@@ -1,1674 +1,301 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HabitDot Habit Tracker</title>
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>HabitDot - Simple Habit Tracking</title>
+    <meta
+      name="description"
+      content="A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 6 daily habits with color-coded dots."
+    />
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="ee7b1e6e-fe20-470d-ba68-9f16c7309254"></script>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
-        body {
-            margin: 0;
-            padding: 0;
-        }
+      body {
+        margin: 0;
+        padding: 0;
+      }
     </style>
-</head>
-<body>
-    <div id="root"></div>
+  </head>
+  <body class="bg-[#0d1117] text-gray-300">
+    <!-- Navigation -->
+    <nav class="bg-[#161b22] border-b border-[#30363d]">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <!-- Logo -->
+          <div class="flex items-center">
+            <a
+              href="/"
+              class="focus:outline-none focus:ring-2 focus:ring-[#58a6ff] rounded"
+            >
+              <img src="images/logo.svg" alt="HabitDot" class="h-10" />
+            </a>
+          </div>
 
-    <script type="text/babel">
-        const { useState, useEffect } = React;
+          <!-- Navigation Links -->
+          <div class="hidden md:flex items-center gap-1">
+            <a
+              href="/"
+              class="px-4 py-2 rounded-lg text-white bg-[#21262d] font-semibold"
+              >Home</a
+            >
+            <a
+              href="about.html"
+              class="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors"
+              >About</a
+            >
+            <a
+              href="contact.html"
+              class="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors"
+              >Contact</a
+            >
+            <a
+              href="app/"
+              class="ml-2 px-6 py-2 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors"
+              >Launch App</a
+            >
+          </div>
 
-        const CheckIcon = () => (
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="20 6 9 17 4 12"></polyline>
-            </svg>
-        );
-
-        const PlusIcon = () => (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <line x1="12" y1="5" x2="12" y2="19"></line>
-                <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
-        );
-
-        const TrashIcon = () => (
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <polyline points="3 6 5 6 21 6"></polyline>
-                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-            </svg>
-        );
-
-        const DownloadIcon = () => (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="7 10 12 15 17 10"></polyline>
-                <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-        );
-
-        const UploadIcon = () => (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-                <polyline points="17 8 12 3 7 8"></polyline>
-                <line x1="12" y1="3" x2="12" y2="15"></line>
-            </svg>
-        );
-
-        const LogoutIcon = () => (
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                <polyline points="16 17 21 12 16 7"></polyline>
-                <line x1="21" y1="12" x2="9" y2="12"></line>
-            </svg>
-        );
-
-        const MenuIcon = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <!-- Mobile menu button -->
+          <div class="md:hidden">
+            <button
+              id="mobile-menu-button"
+              class="text-gray-300 hover:text-white p-2 focus:outline-none focus:ring-2 focus:ring-[#58a6ff] rounded"
+              aria-label="Toggle menu"
+            >
+              <svg
+                id="menu-icon"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <line x1="3" y1="12" x2="21" y2="12"></line>
                 <line x1="3" y1="6" x2="21" y2="6"></line>
                 <line x1="3" y1="18" x2="21" y2="18"></line>
-            </svg>
-        );
-
-        const CloseIcon = () => (
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              </svg>
+              <svg
+                id="close-icon"
+                class="hidden"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
-            </svg>
-        );
-
-        // Logo component
-        const Logo = () => (
-            <img src="images/logo.svg" alt="Habit Tracker" className="h-10" />
-        );
-
-        // Navigation component
-        const Navigation = ({ currentPage, onNavigate, isLoggedIn, onLogout }) => {
-            const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-
-            const navLinks = isLoggedIn ? [
-                { name: 'Tracker', page: 'tracker' },
-                { name: 'Statistics', page: 'statistics' },
-                { name: 'Settings', page: 'settings' },
-            ] : [];
-
-            return (
-                <nav className="bg-[#161b22] border-b border-[#30363d]">
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                        <div className="flex justify-between items-center h-16">
-                            {/* Logo */}
-                            <div className="flex items-center">
-                                <button
-                                    onClick={() => onNavigate(isLoggedIn ? 'tracker' : 'home')}
-                                    className="focus:outline-none focus:ring-2 focus:ring-[#58a6ff] rounded"
-                                >
-                                    <Logo />
-                                </button>
-                            </div>
-
-                            {/* Desktop navigation */}
-                            <div className="hidden md:flex items-center gap-1">
-                                {navLinks.map(link => (
-                                    <button
-                                        key={link.page}
-                                        onClick={() => {
-                                            onNavigate(link.page);
-                                            setMobileMenuOpen(false);
-                                        }}
-                                        className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff] ${
-                                            currentPage === link.page
-                                                ? 'bg-[#21262d] text-white font-semibold'
-                                                : 'text-gray-300 hover:text-white hover:bg-[#21262d]'
-                                        }`}
-                                    >
-                                        {link.name}
-                                    </button>
-                                ))}
-                                {isLoggedIn && (
-                                    <button
-                                        onClick={onLogout}
-                                        className="ml-2 flex items-center gap-2 px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
-                                        title="Logout"
-                                    >
-                                        <LogoutIcon />
-                                        <span className="hidden lg:inline">Logout</span>
-                                    </button>
-                                )}
-                            </div>
-
-                            {/* Mobile menu button */}
-                            <div className="md:hidden">
-                                <button
-                                    onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                                    className="text-gray-300 hover:text-white p-2 focus:outline-none focus:ring-2 focus:ring-[#58a6ff] rounded"
-                                    aria-label="Toggle menu"
-                                >
-                                    {mobileMenuOpen ? <CloseIcon /> : <MenuIcon />}
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Mobile menu */}
-                    {mobileMenuOpen && (
-                        <div className="md:hidden border-t border-[#30363d] bg-[#0d1117]">
-                            <div className="px-2 pt-2 pb-3 space-y-1">
-                                {navLinks.map(link => (
-                                    <button
-                                        key={link.page}
-                                        onClick={() => {
-                                            onNavigate(link.page);
-                                            setMobileMenuOpen(false);
-                                        }}
-                                        className={`block w-full text-left px-4 py-3 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff] ${
-                                            currentPage === link.page
-                                                ? 'bg-[#21262d] text-white font-semibold'
-                                                : 'text-gray-300 hover:text-white hover:bg-[#21262d]'
-                                        }`}
-                                    >
-                                        {link.name}
-                                    </button>
-                                ))}
-                                {isLoggedIn && (
-                                    <button
-                                        onClick={() => {
-                                            onLogout();
-                                            setMobileMenuOpen(false);
-                                        }}
-                                        className="block w-full text-left px-4 py-3 text-gray-300 hover:text-white hover:bg-[#21262d] rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
-                                    >
-                                        <div className="flex items-center gap-2">
-                                            <LogoutIcon />
-                                            <span>Logout</span>
-                                        </div>
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    )}
-                </nav>
-            );
-        };
-
-        const LoginScreen = ({ onLogin }) => {
-            const [username, setUsername] = useState('');
-            const [password, setPassword] = useState('');
-            const [error, setError] = useState('');
-            const [isRegistering, setIsRegistering] = useState(false);
-            const [loading, setLoading] = useState(false);
-
-            const handleSubmit = async (e) => {
-                e.preventDefault();
-                setError('');
-                setLoading(true);
-
-                try {
-                    const action = isRegistering ? 'register' : 'login';
-                    const response = await fetch(`api/auth.php?action=${action}`, {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ username, password }),
-                    });
-
-                    const data = await response.json();
-
-                    if (data.success) {
-                        if (isRegistering) {
-                            // After registration, switch to login
-                            setIsRegistering(false);
-                            setError('');
-                            setPassword('');
-                            alert('Account created! Please log in.');
-                        } else {
-                            // Login successful
-                            onLogin(data.username, data.csrf_token);
-                        }
-                    } else {
-                        setError(data.error || 'An error occurred');
-                    }
-                } catch (err) {
-                    setError('Network error. Please try again.');
-                } finally {
-                    setLoading(false);
-                }
-            };
-
-            return (
-                <div className="min-h-screen bg-[#0d1117] flex flex-col items-center justify-center p-8">
-                    <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-8 w-full max-w-md" role="main">
-                        <div className="flex justify-center mb-6">
-                            <img src="images/logo.svg" alt="Habit Tracker" className="h-12" />
-                        </div>
-                        <form onSubmit={handleSubmit} aria-label={isRegistering ? "Registration form" : "Login form"}>
-                            <div className="mb-4">
-                                <label htmlFor="username-input" className="block text-gray-300 mb-2">Username</label>
-                                <input
-                                    id="username-input"
-                                    type="text"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    className="w-full px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
-                                    placeholder="Enter username"
-                                    aria-required="true"
-                                    disabled={loading}
-                                />
-                            </div>
-                            <div className="mb-4">
-                                <label htmlFor="password-input" className="block text-gray-300 mb-2">Password</label>
-                                <input
-                                    id="password-input"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
-                                    placeholder="Enter password"
-                                    aria-required="true"
-                                    aria-invalid={error ? 'true' : 'false'}
-                                    aria-describedby={error ? 'password-error' : undefined}
-                                    disabled={loading}
-                                />
-                            </div>
-                            {error && <p id="password-error" className="text-red-400 mb-4" role="alert">{error}</p>}
-                            <button
-                                type="submit"
-                                className="w-full px-4 py-2 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043] disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={loading}
-                            >
-                                {loading ? 'Please wait...' : (isRegistering ? 'Register' : 'Login')}
-                            </button>
-                        </form>
-                        <div className="mt-4 text-center">
-                            <button
-                                onClick={() => {
-                                    setIsRegistering(!isRegistering);
-                                    setError('');
-                                }}
-                                className="text-[#58a6ff] hover:underline focus:outline-none"
-                                disabled={loading}
-                            >
-                                {isRegistering ? 'Already have an account? Login' : "Don't have an account? Register"}
-                            </button>
-                        </div>
-                        {isRegistering && (
-                            <p className="text-gray-400 text-sm mt-4 text-center">
-                                Password must be at least 8 characters
-                            </p>
-                        )}
-                    </div>
-
-                    <footer className="mt-8 text-center text-gray-400 text-sm">
-                        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-3">
-                            <a
-                                href="https://github.com/tomspetter/HabitTracker"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[#58a6ff] hover:underline"
-                            >
-                                View on GitHub
-                            </a>
-                            <span className="hidden sm:inline">•</span>
-                            <a
-                                href="https://buymeacoffee.com/tomspetter"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[#58a6ff] hover:underline"
-                            >
-                                ☕ Buy Me a Coffee
-                            </a>
-                        </div>
-                        <p className="text-xs text-gray-500">
-                            © {new Date().getFullYear()} Tom Spetter • Open Source (MIT)
-                        </p>
-                    </footer>
-                </div>
-            );
-        };
-
-        const HabitTracker = () => {
-            const [isLoggedIn, setIsLoggedIn] = useState(false);
-            const [username, setUsername] = useState('');
-            const [csrfToken, setCsrfToken] = useState('');
-            const [loading, setLoading] = useState(true);
-            const [currentPage, setCurrentPage] = useState('tracker');
-            const calendarRefs = React.useRef({});
-
-            // Rainbow color palette (6 colors)
-            const colorPalette = [
-                '#ef4444',  // Red
-                '#f97316',  // Orange
-                '#eab308',  // Yellow
-                '#22c55e',  // Green
-                '#3b82f6',  // Blue
-                '#a855f7',  // Purple
-            ];
-
-            const today = new Date();
-            const currentYear = today.getFullYear();
-            
-            const todayFormatted = today.toLocaleDateString('en-US', {
-                weekday: 'long',
-                month: 'long',
-                day: 'numeric'
-            });
-
-            const generateYearDates = () => {
-                const dates = [];
-                // Start from 365 days ago
-                const startDate = new Date(today);
-                startDate.setDate(startDate.getDate() - 365);
-
-                let currentDate = new Date(startDate);
-                // Go up to and including today
-                while (currentDate <= today) {
-                    dates.push(new Date(currentDate));
-                    currentDate.setDate(currentDate.getDate() + 1);
-                }
-                return dates;
-            };
-
-            const yearDates = generateYearDates();
-
-            const [habits, setHabits] = useState([]);
-            const [habitData, setHabitData] = useState({});
-            const [deleteMode, setDeleteMode] = useState(false);
-            const [confirmDelete, setConfirmDelete] = useState(null);
-
-            // Get color for a habit based on its position in the list
-            const getHabitColor = (habitId) => {
-                const index = habits.findIndex(h => h.id === habitId);
-                return index >= 0 ? colorPalette[index % colorPalette.length] : colorPalette[0];
-            };
-
-            const formatDate = (date) => {
-                const year = date.getFullYear();
-                const month = String(date.getMonth() + 1).padStart(2, '0');
-                const day = String(date.getDate()).padStart(2, '0');
-                return `${year}-${month}-${day}`;
-            };
-
-            // Calculate current streak for a habit
-            const calculateCurrentStreak = (habitId) => {
-                const data = habitData[habitId] || {};
-                let streak = 0;
-                let currentDate = new Date(today);
-
-                // Count backwards from today
-                while (true) {
-                    const dateStr = formatDate(currentDate);
-                    if (data[dateStr]) {
-                        streak++;
-                        currentDate.setDate(currentDate.getDate() - 1);
-                    } else {
-                        break;
-                    }
-                }
-
-                return streak;
-            };
-
-            // Calculate longest streak for a habit
-            const calculateLongestStreak = (habitId) => {
-                const data = habitData[habitId] || {};
-                let longestStreak = 0;
-                let currentStreak = 0;
-
-                // Go through all dates in the year
-                yearDates.forEach(date => {
-                    const dateStr = formatDate(date);
-                    if (data[dateStr]) {
-                        currentStreak++;
-                        longestStreak = Math.max(longestStreak, currentStreak);
-                    } else {
-                        currentStreak = 0;
-                    }
-                });
-
-                return longestStreak;
-            };
-
-            // Check authentication status on mount
-            useEffect(() => {
-                const checkAuth = async () => {
-                    try {
-                        const response = await fetch('api/auth.php?action=check');
-                        const data = await response.json();
-
-                        if (data.loggedIn) {
-                            setIsLoggedIn(true);
-                            setUsername(data.username);
-                            setCsrfToken(data.csrf_token);
-                            await loadData();
-                        }
-                    } catch (err) {
-                        console.error('Auth check failed:', err);
-                    } finally {
-                        setLoading(false);
-                    }
-                };
-
-                checkAuth();
-            }, []);
-
-            // Load data from server
-            const loadData = async () => {
-                try {
-                    const response = await fetch('api/data.php?action=load');
-                    const result = await response.json();
-
-                    if (result.success) {
-                        const data = result.data;
-                        if (data.habits && data.habits.length > 0) {
-                            setHabits(data.habits);
-                            setHabitData(data.habitData || {});
-                        } else {
-                            // Initialize with one default habit
-                            const defaultHabit = { id: 1, name: 'New Habit' };
-                            setHabits([defaultHabit]);
-                            setHabitData({ 1: {} });
-                        }
-                    }
-                } catch (err) {
-                    console.error('Failed to load data:', err);
-                    // Initialize with default on error
-                    const defaultHabit = { id: 1, name: 'New Habit' };
-                    setHabits([defaultHabit]);
-                    setHabitData({ 1: {} });
-                }
-            };
-
-            // Save data to server whenever habits or habitData changes
-            useEffect(() => {
-                if (isLoggedIn && habits.length > 0 && csrfToken) {
-                    const saveData = async () => {
-                        try {
-                            await fetch('api/data.php?action=save', {
-                                method: 'POST',
-                                headers: {
-                                    'Content-Type': 'application/json',
-                                },
-                                body: JSON.stringify({
-                                    habits,
-                                    habitData,
-                                    csrf_token: csrfToken
-                                }),
-                            });
-                        } catch (err) {
-                            console.error('Failed to save data:', err);
-                        }
-                    };
-
-                    // Debounce saves to avoid too many requests
-                    const timeoutId = setTimeout(saveData, 500);
-                    return () => clearTimeout(timeoutId);
-                }
-            }, [habits, habitData, isLoggedIn, csrfToken]);
-
-
-            const addHabit = () => {
-                if (habits.length >= 6) return;
-
-                const newId = Math.max(...habits.map(h => h.id), 0) + 1;
-
-                const newHabit = {
-                    id: newId,
-                    name: 'New Habit'
-                };
-
-                setHabits([...habits, newHabit]);
-                setHabitData({...habitData, [newId]: {}});
-            };
-
-            const removeHabit = (id) => {
-                if (habits.length === 1) return;
-                setHabits(habits.filter(h => h.id !== id));
-                const newData = {...habitData};
-                delete newData[id];
-                setHabitData(newData);
-                setConfirmDelete(null);
-                setDeleteMode(false);
-            };
-
-            const initiateDelete = (id) => {
-                setConfirmDelete(id);
-            };
-
-            const cancelDelete = () => {
-                setConfirmDelete(null);
-            };
-
-            const handleHabitNameChange = (id, newName) => {
-                setHabits(habits.map(h => 
-                    h.id === id ? { ...h, name: newName } : h
-                ));
-            };
-
-            const toggleDay = (habitId, dateStr) => {
-                const newHabitData = {...habitData};
-                if (!newHabitData[habitId]) {
-                    newHabitData[habitId] = {};
-                }
-                newHabitData[habitId][dateStr] = !newHabitData[habitId][dateStr];
-                setHabitData(newHabitData);
-            };
-
-            const toggleToday = (habitId) => {
-                const todayStr = formatDate(today);
-                toggleDay(habitId, todayStr);
-            };
-
-            // Export to CSV
-            const exportToCSV = () => {
-                const csvData = [];
-
-                // Header
-                csvData.push(['Habit ID', 'Habit Name', 'Date', 'Completed']);
-
-                // Data rows
-                habits.forEach(habit => {
-                    const data = habitData[habit.id] || {};
-                    Object.keys(data).forEach(date => {
-                        csvData.push([
-                            habit.id,
-                            habit.name,
-                            date,
-                            data[date] ? 'true' : 'false'
-                        ]);
-                    });
-                });
-
-                const csv = Papa.unparse(csvData);
-                const blob = new Blob([csv], { type: 'text/csv' });
-                const url = window.URL.createObjectURL(blob);
-                const a = document.createElement('a');
-                a.href = url;
-                a.download = `habit-tracker-${new Date().toISOString().split('T')[0]}.csv`;
-                a.click();
-            };
-
-            // Import from CSV
-            const importFromCSV = (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                Papa.parse(file, {
-                    header: true,
-                    complete: (results) => {
-                        const newHabits = [];
-                        const newHabitData = {};
-                        const habitMap = new Map();
-
-                        results.data.forEach(row => {
-                            if (!row['Habit ID']) return;
-
-                            const habitId = parseInt(row['Habit ID']);
-
-                            if (!habitMap.has(habitId)) {
-                                habitMap.set(habitId, {
-                                    id: habitId,
-                                    name: row['Habit Name']
-                                });
-                                newHabitData[habitId] = {};
-                            }
-
-                            if (row['Date']) {
-                                newHabitData[habitId][row['Date']] = row['Completed'] === 'true';
-                            }
-                        });
-
-                        setHabits(Array.from(habitMap.values()));
-                        setHabitData(newHabitData);
-                    }
-                });
-            };
-
-            const logout = async () => {
-                try {
-                    await fetch('api/auth.php?action=logout', {
-                        method: 'POST',
-                    });
-                } catch (err) {
-                    console.error('Logout failed:', err);
-                } finally {
-                    setIsLoggedIn(false);
-                    setUsername('');
-                    setCsrfToken('');
-                    setHabits([]);
-                    setHabitData({});
-                }
-            };
-
-            const exportDataJSON = () => {
-                // Trigger JSON download
-                window.location.href = 'api/data.php?action=export&format=json';
-            };
-
-            const exportDataCSV = () => {
-                // Trigger CSV download
-                window.location.href = 'api/data.php?action=export&format=csv';
-            };
-
-            const handleLogin = (user, token) => {
-                setIsLoggedIn(true);
-                setUsername(user);
-                setCsrfToken(token);
-                setCurrentPage('tracker');
-                loadData();
-            };
-
-            const handleNavigate = (page) => {
-                setCurrentPage(page);
-            };
-
-            if (loading) {
-                return (
-                    <div className="min-h-screen bg-[#0d1117] flex items-center justify-center">
-                        <div className="text-white text-xl">Loading...</div>
-                    </div>
-                );
-            }
-
-            if (!isLoggedIn) {
-                return <LoginScreen onLogin={handleLogin} />;
-            }
-
-            // Placeholder pages
-            const PlaceholderPage = ({ title, description }) => (
-                <div className="min-h-screen bg-[#0d1117]">
-                    <Navigation
-                        currentPage={currentPage}
-                        onNavigate={handleNavigate}
-                        isLoggedIn={isLoggedIn}
-                        onLogout={logout}
-                    />
-                    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-                        <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-12 text-center">
-                            <h1 className="text-4xl font-bold text-white mb-4">{title}</h1>
-                            <p className="text-gray-400 text-lg">{description}</p>
-                        </div>
-                    </div>
-                    <footer className="fixed bottom-0 left-0 right-0 py-4 bg-[#0d1117] border-t border-[#30363d] text-center text-gray-400 text-sm">
-                        <div className="flex flex-col sm:flex-row justify-center items-center gap-3 mb-2">
-                            <a
-                                href="https://github.com/tomspetter/HabitTracker"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[#58a6ff] hover:underline"
-                            >
-                                View on GitHub
-                            </a>
-                            <span className="hidden sm:inline">•</span>
-                            <a
-                                href="https://buymeacoffee.com/tomspetter"
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                className="text-[#58a6ff] hover:underline"
-                            >
-                                ☕ Buy Me a Coffee
-                            </a>
-                            <span className="hidden sm:inline">•</span>
-                            <span className="text-gray-500">v0.9.0</span>
-                        </div>
-                        <p className="text-xs text-gray-500">
-                            © {new Date().getFullYear()} Tom Spetter • Open Source (MIT)
-                        </p>
-                    </footer>
-                </div>
-            );
-
-            // Statistics calculation functions
-            const calculateStats = (habitId, days) => {
-                const data = habitData[habitId] || {};
-                let completed = 0;
-                let total = 0;
-                const endDate = new Date(today);
-                const startDate = new Date(today);
-                startDate.setDate(startDate.getDate() - days);
-
-                let currentDate = new Date(startDate);
-                while (currentDate <= endDate) {
-                    const dateStr = formatDate(currentDate);
-                    if (dateStr <= formatDate(today)) {
-                        total++;
-                        if (data[dateStr]) completed++;
-                    }
-                    currentDate.setDate(currentDate.getDate() + 1);
-                }
-
-                return {
-                    completed,
-                    total,
-                    percentage: total > 0 ? Math.round((completed / total) * 100) : 0
-                };
-            };
-
-            const getTotalCompletions = (habitId) => {
-                const data = habitData[habitId] || {};
-                return Object.values(data).filter(v => v).length;
-            };
-
-            // Statistics Page Component
-            const StatisticsPage = () => {
-                const [timePeriod, setTimePeriod] = useState('30');
-
-                const periods = [
-                    { label: 'Last 7 Days', value: '7' },
-                    { label: 'Last 30 Days', value: '30' },
-                    { label: 'This Year', value: '365' },
-                ];
-
-                // Calculate stats for all habits
-                const habitStats = habits.map(habit => {
-                    const stats = calculateStats(habit.id, parseInt(timePeriod));
-                    return {
-                        ...habit,
-                        ...stats,
-                        currentStreak: calculateCurrentStreak(habit.id),
-                        longestStreak: calculateLongestStreak(habit.id),
-                        totalCompletions: getTotalCompletions(habit.id)
-                    };
-                });
-
-                // Overall stats
-                const totalCheckIns = habitStats.reduce((sum, h) => sum + h.completed, 0);
-                const overallPercentage = habitStats.length > 0
-                    ? Math.round(habitStats.reduce((sum, h) => sum + h.percentage, 0) / habitStats.length)
-                    : 0;
-                const bestHabit = habitStats.length > 0
-                    ? habitStats.reduce((best, current) => current.percentage > best.percentage ? current : best)
-                    : null;
-
-                return (
-                    <div className="min-h-screen bg-[#0d1117]">
-                        <Navigation
-                            currentPage={currentPage}
-                            onNavigate={handleNavigate}
-                            isLoggedIn={isLoggedIn}
-                            onLogout={logout}
-                        />
-                        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                            {/* Header */}
-                            <div className="mb-8">
-                                <h1 className="text-4xl font-bold text-white mb-2">Statistics & Analytics</h1>
-                                <p className="text-gray-400">Track your progress and identify patterns</p>
-                            </div>
-
-                            {/* Time Period Selector */}
-                            <div className="mb-8 flex flex-wrap gap-2">
-                                {periods.map(period => (
-                                    <button
-                                        key={period.value}
-                                        onClick={() => setTimePeriod(period.value)}
-                                        className={`px-4 py-2 rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff] ${
-                                            timePeriod === period.value
-                                                ? 'bg-[#238636] text-white font-semibold'
-                                                : 'bg-[#21262d] text-gray-300 hover:bg-[#30363d]'
-                                        }`}
-                                    >
-                                        {period.label}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Overall Dashboard */}
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                                <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
-                                    <div className="text-gray-400 text-sm mb-2">Total Check-ins</div>
-                                    <div className="text-4xl font-bold text-white">{totalCheckIns}</div>
-                                    <div className="text-gray-500 text-xs mt-1">in last {timePeriod} days</div>
-                                </div>
-                                <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
-                                    <div className="text-gray-400 text-sm mb-2">Overall Completion Rate</div>
-                                    <div className="text-4xl font-bold text-white">{overallPercentage}%</div>
-                                    <div className="text-gray-500 text-xs mt-1">average across all habits</div>
-                                </div>
-                                <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
-                                    <div className="text-gray-400 text-sm mb-2">Best Performing Habit</div>
-                                    {bestHabit ? (
-                                        <>
-                                            <div className="text-2xl font-bold text-white truncate">{bestHabit.name}</div>
-                                            <div className="text-gray-500 text-xs mt-1">{bestHabit.percentage}% completion</div>
-                                        </>
-                                    ) : (
-                                        <div className="text-gray-500">No data</div>
-                                    )}
-                                </div>
-                            </div>
-
-                            {/* Per-Habit Statistics */}
-                            <div className="space-y-4">
-                                <h2 className="text-2xl font-bold text-white mb-4">Habit Breakdown</h2>
-                                {habitStats.map(habit => (
-                                    <div key={habit.id} className="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <div className="flex items-center gap-3">
-                                                <div
-                                                    className="w-4 h-4 rounded"
-                                                    style={{ backgroundColor: getHabitColor(habit.id) }}
-                                                />
-                                                <h3 className="text-xl font-semibold text-white">{habit.name}</h3>
-                                            </div>
-                                            <div className="text-3xl font-bold text-white">{habit.percentage}%</div>
-                                        </div>
-
-                                        {/* Progress bar */}
-                                        <div className="w-full bg-[#21262d] rounded-full h-3 mb-4 overflow-hidden">
-                                            <div
-                                                className="h-full rounded-full transition-all duration-500"
-                                                style={{
-                                                    width: `${habit.percentage}%`,
-                                                    backgroundColor: getHabitColor(habit.id)
-                                                }}
-                                            />
-                                        </div>
-
-                                        {/* Stats grid */}
-                                        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                                            <div>
-                                                <div className="text-gray-400 mb-1">Completed</div>
-                                                <div className="text-white font-semibold">{habit.completed} / {habit.total} days</div>
-                                            </div>
-                                            <div>
-                                                <div className="text-gray-400 mb-1">Current Streak</div>
-                                                <div className="text-orange-400 font-semibold">
-                                                    {habit.currentStreak > 0 ? `🔥 ${habit.currentStreak} days` : '0 days'}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div className="text-gray-400 mb-1">Best Streak</div>
-                                                <div className="text-yellow-400 font-semibold">
-                                                    {habit.longestStreak > 0 ? `🏆 ${habit.longestStreak} days` : '0 days'}
-                                                </div>
-                                            </div>
-                                            <div>
-                                                <div className="text-gray-400 mb-1">Total All-Time</div>
-                                                <div className="text-white font-semibold">{habit.totalCompletions} days</div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-
-                            {/* Footer */}
-                            <footer className="mt-16 pt-8 border-t border-[#30363d] text-center text-gray-400 text-sm">
-                                <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-4">
-                                    <a
-                                        href="https://github.com/tomspetter/HabitTracker"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-[#58a6ff] hover:underline flex items-center gap-1"
-                                    >
-                                        View on GitHub
-                                    </a>
-                                    <span className="hidden md:inline">•</span>
-                                    <a
-                                        href="https://buymeacoffee.com/tomspetter"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-[#58a6ff] hover:underline flex items-center gap-1"
-                                    >
-                                        ☕ Buy Me a Coffee
-                                    </a>
-                                    <span className="hidden md:inline">•</span>
-                                    <span className="text-gray-500">v0.9.0</span>
-                                </div>
-                                <p className="mb-2">
-                                    Made with ❤️ by Tom Spetter • Open Source (MIT License)
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                    © {new Date().getFullYear()} Tom Spetter
-                                </p>
-                            </footer>
-                        </div>
-                    </div>
-                );
-            };
-
-            // Render different pages based on currentPage
-            if (currentPage === 'statistics') {
-                return <StatisticsPage />;
-            }
-
-            // Settings Page Component
-            const SettingsPage = () => {
-                const [currentPassword, setCurrentPassword] = useState('');
-                const [newPassword, setNewPassword] = useState('');
-                const [confirmPassword, setConfirmPassword] = useState('');
-                const [passwordError, setPasswordError] = useState('');
-                const [passwordSuccess, setPasswordSuccess] = useState('');
-                const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
-                const [deletePassword, setDeletePassword] = useState('');
-                const [deleteError, setDeleteError] = useState('');
-                const [importFile, setImportFile] = useState(null);
-
-                const handleChangePassword = async (e) => {
-                    e.preventDefault();
-                    setPasswordError('');
-                    setPasswordSuccess('');
-
-                    // Validation
-                    if (newPassword.length < 8) {
-                        setPasswordError('New password must be at least 8 characters');
-                        return;
-                    }
-
-                    if (newPassword !== confirmPassword) {
-                        setPasswordError('New passwords do not match');
-                        return;
-                    }
-
-                    try {
-                        const response = await fetch('api/account.php?action=change_password', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                current_password: currentPassword,
-                                new_password: newPassword,
-                                csrf_token: csrfToken
-                            })
-                        });
-
-                        if (!response.ok) {
-                            const text = await response.text();
-                            console.error('Server response:', text);
-                            setPasswordError(`Server error: ${response.status}`);
-                            return;
-                        }
-
-                        const data = await response.json();
-
-                        if (data.success) {
-                            setPasswordSuccess('Password updated successfully!');
-                            setCurrentPassword('');
-                            setNewPassword('');
-                            setConfirmPassword('');
-                        } else {
-                            setPasswordError(data.error || 'Failed to update password');
-                        }
-                    } catch (err) {
-                        console.error('Password change error:', err);
-                        setPasswordError(`Network error: ${err.message}`);
-                    }
-                };
-
-                const handleDeleteAccount = async () => {
-                    setDeleteError('');
-
-                    try {
-                        const response = await fetch('api/account.php?action=delete_account', {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify({
-                                password: deletePassword,
-                                csrf_token: csrfToken
-                            })
-                        });
-
-                        const data = await response.json();
-
-                        if (data.success) {
-                            // Account deleted, log out
-                            logout();
-                        } else {
-                            setDeleteError(data.error || 'Failed to delete account');
-                        }
-                    } catch (err) {
-                        setDeleteError('Network error. Please try again.');
-                    }
-                };
-
-                const handleImportData = async () => {
-                    if (!importFile) return;
-
-                    const fileName = importFile.name.toLowerCase();
-                    const isCSV = fileName.endsWith('.csv');
-
-                    const reader = new FileReader();
-                    reader.onload = async (e) => {
-                        try {
-                            let data;
-
-                            if (isCSV) {
-                                // Parse CSV
-                                const csvText = e.target.result;
-                                const parsed = Papa.parse(csvText, { header: true });
-
-                                // Convert CSV back to our data format
-                                const habits = [];
-                                const habitData = {};
-                                const habitMap = new Map();
-
-                                parsed.data.forEach(row => {
-                                    if (!row['Habit ID']) return;
-
-                                    const habitId = parseInt(row['Habit ID']);
-
-                                    if (!habitMap.has(habitId)) {
-                                        habitMap.set(habitId, {
-                                            id: habitId,
-                                            name: row['Habit Name']
-                                        });
-                                        habitData[habitId] = {};
-                                    }
-
-                                    if (row['Date'] && row['Completed'] === 'true') {
-                                        habitData[habitId][row['Date']] = true;
-                                    }
-                                });
-
-                                data = {
-                                    habits: Array.from(habitMap.values()),
-                                    habitData: habitData
-                                };
-                            } else {
-                                // Parse JSON
-                                data = JSON.parse(e.target.result);
-                            }
-
-                            const response = await fetch('api/data.php?action=import', {
-                                method: 'POST',
-                                headers: { 'Content-Type': 'application/json' },
-                                body: JSON.stringify({
-                                    data: data,
-                                    csrf_token: csrfToken
-                                })
-                            });
-
-                            const result = await response.json();
-
-                            if (result.success) {
-                                alert('Data imported successfully!');
-                                loadData(); // Reload the data
-                                setImportFile(null);
-                            } else {
-                                alert(result.error || 'Failed to import data');
-                            }
-                        } catch (err) {
-                            console.error('Import error:', err);
-                            alert('Invalid file format: ' + err.message);
-                        }
-                    };
-                    reader.readAsText(importFile);
-                };
-
-                return (
-                    <div className="min-h-screen bg-[#0d1117]">
-                        <Navigation
-                            currentPage={currentPage}
-                            onNavigate={handleNavigate}
-                            isLoggedIn={isLoggedIn}
-                            onLogout={logout}
-                        />
-                        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                            {/* Header */}
-                            <div className="mb-6">
-                                <h1 className="text-3xl font-bold text-white mb-1">Settings</h1>
-                                <p className="text-gray-400 text-sm">Manage your account and preferences</p>
-                            </div>
-
-                            {/* Account Information */}
-                            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-5 mb-4">
-                                <h2 className="text-lg font-bold text-white mb-3">Account Information</h2>
-                                <div className="grid md:grid-cols-2 gap-3">
-                                    <div>
-                                        <label className="block text-gray-400 text-xs mb-1.5">Username</label>
-                                        <div className="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-white text-sm">
-                                            {username}
-                                        </div>
-                                    </div>
-                                    <div className="opacity-50">
-                                        <label className="block text-gray-400 text-xs mb-1.5">
-                                            Email <span className="text-yellow-500">(Coming Soon)</span>
-                                        </label>
-                                        <div className="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-gray-500 text-sm">
-                                            Not set
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Change Password */}
-                            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-5 mb-4">
-                                <h2 className="text-lg font-bold text-white mb-3">Change Password</h2>
-                                <form onSubmit={handleChangePassword}>
-                                    <div className="grid md:grid-cols-3 gap-3 mb-3">
-                                        <div>
-                                            <label htmlFor="current-password" className="block text-gray-400 text-xs mb-1.5">
-                                                Current Password
-                                            </label>
-                                            <input
-                                                id="current-password"
-                                                type="password"
-                                                value={currentPassword}
-                                                onChange={(e) => setCurrentPassword(e.target.value)}
-                                                className="w-full px-3 py-2 text-sm bg-[#0d1117] border border-[#30363d] rounded text-white focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="new-password" className="block text-gray-400 text-xs mb-1.5">
-                                                New Password
-                                            </label>
-                                            <input
-                                                id="new-password"
-                                                type="password"
-                                                value={newPassword}
-                                                onChange={(e) => setNewPassword(e.target.value)}
-                                                className="w-full px-3 py-2 text-sm bg-[#0d1117] border border-[#30363d] rounded text-white focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]"
-                                                placeholder="Min 8 characters"
-                                                required
-                                            />
-                                        </div>
-                                        <div>
-                                            <label htmlFor="confirm-password" className="block text-gray-400 text-xs mb-1.5">
-                                                Confirm Password
-                                            </label>
-                                            <input
-                                                id="confirm-password"
-                                                type="password"
-                                                value={confirmPassword}
-                                                onChange={(e) => setConfirmPassword(e.target.value)}
-                                                className="w-full px-3 py-2 text-sm bg-[#0d1117] border border-[#30363d] rounded text-white focus:outline-none focus:border-[#58a6ff] focus:ring-1 focus:ring-[#58a6ff]"
-                                                required
-                                            />
-                                        </div>
-                                    </div>
-                                    {passwordError && (
-                                        <p className="text-red-400 text-xs mb-2">{passwordError}</p>
-                                    )}
-                                    {passwordSuccess && (
-                                        <p className="text-green-400 text-xs mb-2">{passwordSuccess}</p>
-                                    )}
-                                    <button
-                                        type="submit"
-                                        className="px-4 py-2 text-sm bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043]"
-                                    >
-                                        Update Password
-                                    </button>
-                                </form>
-                            </div>
-
-                            {/* Data Management */}
-                            <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-5 mb-4">
-                                <h2 className="text-lg font-bold text-white mb-3">Data Management</h2>
-                                <div className="grid md:grid-cols-2 gap-4">
-                                    {/* Export */}
-                                    <div>
-                                        <div className="flex items-start gap-2 mb-2">
-                                            <DownloadIcon />
-                                            <div>
-                                                <h3 className="text-white font-semibold text-sm">Export Data</h3>
-                                                <p className="text-gray-400 text-xs mt-0.5">
-                                                    Download your habit data
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="space-y-2">
-                                            <button
-                                                onClick={exportDataCSV}
-                                                className="w-full px-4 py-2 text-sm bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043]"
-                                            >
-                                                Export as CSV
-                                            </button>
-                                            <button
-                                                onClick={exportDataJSON}
-                                                className="w-full px-4 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] text-white font-semibold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
-                                            >
-                                                Export as JSON
-                                            </button>
-                                        </div>
-                                    </div>
-
-                                    {/* Import */}
-                                    <div>
-                                        <div className="flex items-start gap-2 mb-2">
-                                            <UploadIcon />
-                                            <div>
-                                                <h3 className="text-white font-semibold text-sm">Import Data</h3>
-                                                <p className="text-gray-400 text-xs mt-0.5">
-                                                    Restore from CSV or JSON
-                                                </p>
-                                            </div>
-                                        </div>
-                                        <div className="flex gap-2">
-                                            <input
-                                                type="file"
-                                                accept=".csv,.json"
-                                                onChange={(e) => setImportFile(e.target.files[0])}
-                                                className="hidden"
-                                                id="import-file"
-                                            />
-                                            <label
-                                                htmlFor="import-file"
-                                                className="flex-1 px-4 py-2 text-sm bg-[#21262d] hover:bg-[#30363d] text-white font-semibold rounded transition-colors cursor-pointer text-center"
-                                            >
-                                                {importFile ? importFile.name.substring(0, 12) + '...' : 'Choose File'}
-                                            </label>
-                                            <button
-                                                onClick={handleImportData}
-                                                disabled={!importFile}
-                                                className="px-4 py-2 text-sm bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043] disabled:opacity-50 disabled:cursor-not-allowed"
-                                            >
-                                                Import
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Danger Zone */}
-                            <div className="bg-[#161b22] border-2 border-[#da3633] rounded-lg p-5">
-                                <div className="flex items-start justify-between">
-                                    <div className="flex-1">
-                                        <h2 className="text-lg font-bold text-red-400 mb-1">⚠️ Danger Zone</h2>
-                                        <p className="text-gray-400 text-xs mb-3">
-                                            Permanently delete your account and all data. This cannot be undone.
-                                        </p>
-                                    </div>
-                                    <button
-                                        onClick={() => setDeleteConfirmOpen(true)}
-                                        className="px-4 py-2 text-sm bg-[#da3633] hover:bg-[#b92e2b] text-white font-semibold rounded transition-colors focus:outline-none focus:ring-2 focus:ring-red-500 whitespace-nowrap ml-4"
-                                    >
-                                        Delete Account
-                                    </button>
-                                </div>
-                            </div>
-
-                            {/* Delete Confirmation Modal */}
-                            {deleteConfirmOpen && (
-                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-                                    <div className="bg-[#161b22] border-2 border-[#da3633] rounded-lg p-6 max-w-md w-full">
-                                        <h2 className="text-2xl font-bold text-white mb-4">⚠️ Delete Account</h2>
-                                        <p className="text-gray-300 mb-4">
-                                            This will permanently delete your account and all your habit tracking data.
-                                            This action cannot be undone.
-                                        </p>
-                                        <p className="text-gray-300 mb-4">
-                                            Please enter your password to confirm:
-                                        </p>
-                                        <input
-                                            type="password"
-                                            value={deletePassword}
-                                            onChange={(e) => setDeletePassword(e.target.value)}
-                                            placeholder="Enter your password"
-                                            className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-white mb-4 focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
-                                        />
-                                        {deleteError && (
-                                            <p className="text-red-400 text-sm mb-4">{deleteError}</p>
-                                        )}
-                                        <div className="flex gap-3">
-                                            <button
-                                                onClick={() => {
-                                                    setDeleteConfirmOpen(false);
-                                                    setDeletePassword('');
-                                                    setDeleteError('');
-                                                }}
-                                                className="flex-1 px-4 py-3 bg-[#21262d] hover:bg-[#30363d] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
-                                            >
-                                                Cancel
-                                            </button>
-                                            <button
-                                                onClick={handleDeleteAccount}
-                                                className="flex-1 px-4 py-3 bg-[#da3633] hover:bg-[#b92e2b] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-                                            >
-                                                Delete Permanently
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            )}
-
-                            {/* Footer */}
-                            <footer className="mt-16 pt-8 border-t border-[#30363d] text-center text-gray-400 text-sm">
-                                <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-4">
-                                    <a
-                                        href="https://github.com/tomspetter/HabitTracker"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-[#58a6ff] hover:underline flex items-center gap-1"
-                                    >
-                                        View on GitHub
-                                    </a>
-                                    <span className="hidden md:inline">•</span>
-                                    <a
-                                        href="https://buymeacoffee.com/tomspetter"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-[#58a6ff] hover:underline flex items-center gap-1"
-                                    >
-                                        ☕ Buy Me a Coffee
-                                    </a>
-                                    <span className="hidden md:inline">•</span>
-                                    <span className="text-gray-500">v0.9.0</span>
-                                </div>
-                                <p className="mb-2">
-                                    Made with ❤️ by Tom Spetter • Open Source (MIT License)
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                    © {new Date().getFullYear()} Tom Spetter
-                                </p>
-                            </footer>
-                        </div>
-                    </div>
-                );
-            };
-
-            if (currentPage === 'settings') {
-                return <SettingsPage />;
-            }
-
-            const getWeekData = () => {
-                const weeks = [];
-                let currentWeek = [];
-                
-                const firstDate = yearDates[0];
-                const firstDay = firstDate.getDay();
-                
-                for (let i = 0; i < firstDay; i++) {
-                    currentWeek.push(null);
-                }
-                
-                yearDates.forEach(date => {
-                    currentWeek.push(date);
-                    if (date.getDay() === 6 || date === yearDates[yearDates.length - 1]) {
-                        weeks.push([...currentWeek]);
-                        currentWeek = [];
-                    }
-                });
-                
-                return weeks;
-            };
-
-            const weeks = getWeekData();
-
-            const getMonthLabels = () => {
-                const months = [];
-                let currentMonth = -1;
-                
-                weeks.forEach((week, weekIndex) => {
-                    const firstValidDate = week.find(d => d !== null);
-                    if (firstValidDate) {
-                        const month = firstValidDate.getMonth();
-                        if (month !== currentMonth) {
-                            const dayOfMonth = firstValidDate.getDate();
-                            if (dayOfMonth <= 7) {
-                                months.push({
-                                    name: firstValidDate.toLocaleString('default', { month: 'short' }),
-                                    index: weekIndex
-                                });
-                            }
-                            currentMonth = month;
-                        }
-                    }
-                });
-                
-                return months;
-            };
-
-            const monthLabels = getMonthLabels();
-            const dayLabels = ['Mon', 'Wed', 'Fri'];
-
-            return (
-                <div className="min-h-screen bg-[#0d1117] text-gray-300">
-                    <Navigation
-                        currentPage={currentPage}
-                        onNavigate={handleNavigate}
-                        isLoggedIn={isLoggedIn}
-                        onLogout={logout}
-                    />
-                    <div className="p-8 flex justify-center">
-                        <div className="w-full max-w-7xl">
-                            <header className="mb-8">
-                                <h1 className="text-3xl font-bold text-white mb-2">Today's Habits</h1>
-                                <p className="text-gray-400">{todayFormatted}</p>
-                            </header>
-                        
-                        {confirmDelete !== null && (
-                            <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" role="dialog" aria-modal="true" aria-labelledby="dialog-title" aria-describedby="dialog-description">
-                                <div className="bg-[#161b22] border border-[#30363d] rounded-lg p-6 max-w-md">
-                                    <h2 id="dialog-title" className="text-xl font-bold text-white mb-4">Delete Habit?</h2>
-                                    <p id="dialog-description" className="text-gray-300 mb-6">
-                                        This will permanently delete your habit tracking data for "{habits.find(h => h.id === confirmDelete)?.name}".
-                                        This action is not reversible.
-                                    </p>
-                                    <div className="flex gap-3 justify-end">
-                                        <button
-                                            onClick={cancelDelete}
-                                            className="px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
-                                        >
-                                            Cancel
-                                        </button>
-                                        <button
-                                            onClick={() => removeHabit(confirmDelete)}
-                                            className="px-4 py-2 bg-[#da3633] hover:bg-[#b92e2b] text-white rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-red-500"
-                                        >
-                                            Delete Permanently
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                        
-                        {habits.map((habit) => {
-                            const todayStr = formatDate(today);
-                            const isCheckedToday = habitData[habit.id]?.[todayStr] || false;
-                            const currentStreak = calculateCurrentStreak(habit.id);
-                            const longestStreak = calculateLongestStreak(habit.id);
-
-                            return (
-                                <div key={habit.id} className="mb-10">
-                                    <div className="inline-block mx-auto" style={{ display: 'block', maxWidth: 'fit-content' }}>
-                                        <div className="mb-4 flex flex-col md:flex-row md:items-center gap-4 bg-[#161b22] p-4 rounded-lg border border-[#30363d]">
-                                            <div className="flex flex-col gap-2 flex-1">
-                                                <label className="flex flex-col md:flex-row md:items-center gap-3 cursor-pointer" htmlFor={`today-checkbox-${habit.id}`}>
-                                                    <div className="flex items-center gap-3">
-                                                        <div className="relative">
-                                                            <input
-                                                                id={`today-checkbox-${habit.id}`}
-                                                                type="checkbox"
-                                                                checked={isCheckedToday}
-                                                                onChange={() => toggleToday(habit.id)}
-                                                                className="w-5 h-5 rounded border-2 border-gray-600 appearance-none checked:bg-[#238636] checked:border-[#238636] cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#58a6ff]"
-                                                                aria-label={`Mark ${habit.name} as completed for today`}
-                                                            />
-                                                            {isCheckedToday && (
-                                                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none text-white">
-                                                                    <CheckIcon aria-hidden="true" />
-                                                                </div>
-                                                            )}
-                                                        </div>
-                                                        <input
-                                                            id={`habit-name-${habit.id}`}
-                                                            type="text"
-                                                            value={habit.name}
-                                                            onChange={(e) => handleHabitNameChange(habit.id, e.target.value)}
-                                                            className="font-semibold text-lg text-white bg-transparent border-none outline-none focus:bg-[#0d1117] focus:ring-2 focus:ring-[#58a6ff] px-2 py-1 rounded"
-                                                            onClick={(e) => e.preventDefault()}
-                                                            aria-label="Habit name"
-                                                        />
-                                                    </div>
-                                                    <span className="text-gray-400" aria-hidden="true">- Did you complete this habit today?</span>
-                                                </label>
-                                                {(currentStreak > 0 || longestStreak > 0) && (
-                                                    <div className="flex items-center gap-4 text-sm ml-8">
-                                                        {currentStreak > 0 && (
-                                                            <span className="text-orange-400" title="Current streak">
-                                                                🔥 Current streak: {currentStreak} day{currentStreak !== 1 ? 's' : ''}
-                                                            </span>
-                                                        )}
-                                                        {longestStreak > 0 && (
-                                                            <span className="text-yellow-400" title="Longest streak">
-                                                                🏆 Best: {longestStreak} day{longestStreak !== 1 ? 's' : ''}
-                                                            </span>
-                                                        )}
-                                                    </div>
-                                                )}
-                                            </div>
-                                            {deleteMode && habits.length > 1 && (
-                                                <button
-                                                    onClick={() => initiateDelete(habit.id)}
-                                                    className="text-gray-400 hover:text-red-400 transition-colors p-2 focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
-                                                    aria-label={`Delete ${habit.name}`}
-                                                    title="Delete habit"
-                                                >
-                                                    <TrashIcon aria-hidden="true" />
-                                                </button>
-                                            )}
-                                        </div>
-
-                                        <div className="flex gap-3">
-                                            <div className="flex flex-col gap-1 text-xs text-gray-500 justify-start pt-6">
-                                                {dayLabels.map((day, i) => (
-                                                    <div key={i} style={{ height: '11px', lineHeight: '11px', marginBottom: i < dayLabels.length - 1 ? '12px' : '0' }}>
-                                                        {day}
-                                                    </div>
-                                                ))}
-                                            </div>
-
-                                            <div
-                                                className="flex-1 overflow-x-auto pb-2"
-                                                ref={(el) => {
-                                                    if (el) {
-                                                        calendarRefs.current[habit.id] = el;
-                                                        // Auto-scroll to the right to show today
-                                                        setTimeout(() => {
-                                                            el.scrollLeft = el.scrollWidth - el.clientWidth;
-                                                        }, 50);
-                                                    }
-                                                }}
-                                            >
-                                                <div className="inline-block pr-1">
-                                                <div className="flex gap-1 mb-2 text-xs text-gray-500 relative h-4">
-                                                    {monthLabels.map((month, i) => (
-                                                        <div
-                                                            key={i}
-                                                            className="absolute"
-                                                            style={{ left: `${(month.index * 10) + (month.index * 4)}px` }}
-                                                        >
-                                                            {month.name}
-                                                        </div>
-                                                    ))}
-                                                </div>
-
-                                                <div className="flex gap-1" role="grid" aria-label={`${habit.name} habit tracking calendar`}>
-                                                    {weeks.map((week, weekIndex) => (
-                                                        <div key={weekIndex} className="flex flex-col gap-1" role="row">
-                                                            {week.map((date, dayIndex) => {
-                                                                if (!date) {
-                                                                    return <div key={dayIndex} className="w-[10px] h-[10px]" role="gridcell" />;
-                                                                }
-
-                                                                const dateStr = formatDate(date);
-                                                                const isCompleted = habitData[habit.id]?.[dateStr];
-                                                                const todayStr = formatDate(today);
-                                                                const isToday = dateStr === todayStr;
-                                                                const isFuture = dateStr > todayStr;
-
-                                                                return (
-                                                                    <button
-                                                                        key={dayIndex}
-                                                                        role="gridcell"
-                                                                        className={`w-[10px] h-[10px] rounded-full cursor-pointer hover:ring-1 hover:ring-white focus:outline-none focus:ring-2 focus:ring-[#58a6ff] ${
-                                                                            isFuture
-                                                                                ? 'bg-[#161b22]'
-                                                                                : isCompleted
-                                                                                    ? ''
-                                                                                    : 'bg-[#161b22]'
-                                                                        } ${isToday ? 'ring-1 ring-blue-500' : ''}`}
-                                                                        style={{
-                                                                            backgroundColor: isCompleted && !isFuture ? getHabitColor(habit.id) : undefined
-                                                                        }}
-                                                                        onClick={() => !isFuture && toggleDay(habit.id, dateStr)}
-                                                                        disabled={isFuture}
-                                                                        aria-label={`${date.toLocaleDateString()}: ${isCompleted ? 'Completed' : 'Not completed'}${isFuture ? ' (future date)' : ''}`}
-                                                                        aria-pressed={!isFuture && isCompleted}
-                                                                        tabIndex={isFuture ? -1 : 0}
-                                                                        title={`${habit.name} - ${date.toLocaleDateString()}`}
-                                                                    />
-                                                                );
-                                                            })}
-                                                        </div>
-                                                    ))}
-                                                </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
-                        
-                        <div className="flex gap-3" role="group" aria-label="Habit management actions">
-                            {habits.length < 6 && (
-                                <button
-                                    onClick={addHabit}
-                                    className="flex items-center gap-2 px-6 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043]"
-                                    aria-label={`Add new habit (${habits.length} of 6 habits)`}
-                                >
-                                    <PlusIcon aria-hidden="true" />
-                                    Add Habit ({habits.length}/6)
-                                </button>
-                            )}
-
-                            {habits.length > 1 && (
-                                <button
-                                    onClick={() => setDeleteMode(!deleteMode)}
-                                    className={`flex items-center gap-2 px-6 py-3 font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 ${
-                                        deleteMode
-                                            ? 'bg-[#da3633] hover:bg-[#b92e2b] text-white focus:ring-red-500'
-                                            : 'bg-[#21262d] hover:bg-[#30363d] text-white focus:ring-[#58a6ff]'
-                                    }`}
-                                    aria-label={deleteMode ? 'Cancel delete mode' : 'Enter delete mode to remove habits'}
-                                    aria-pressed={deleteMode}
-                                >
-                                    <TrashIcon aria-hidden="true" />
-                                    {deleteMode ? 'Cancel Delete' : 'Remove Habit'}
-                                </button>
-                            )}
-                        </div>
-
-                            <footer className="mt-16 pt-8 border-t border-[#30363d] text-center text-gray-400 text-sm">
-                                <div className="flex flex-col md:flex-row justify-center items-center gap-4 mb-4">
-                                    <a
-                                        href="https://github.com/tomspetter/HabitTracker"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-[#58a6ff] hover:underline flex items-center gap-1"
-                                    >
-                                        View on GitHub
-                                    </a>
-                                    <span className="hidden md:inline">•</span>
-                                    <a
-                                        href="https://buymeacoffee.com/tomspetter"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="text-[#58a6ff] hover:underline flex items-center gap-1"
-                                    >
-                                        ☕ Buy Me a Coffee
-                                    </a>
-                                    <span className="hidden md:inline">•</span>
-                                    <span className="text-gray-500">v0.9.0</span>
-                                </div>
-                                <p className="mb-2">
-                                    Made with ❤️ by Tom Spetter • Open Source (MIT License)
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                    © {new Date().getFullYear()} Tom Spetter
-                                </p>
-                            </footer>
-                        </div>
-                    </div>
-                </div>
-            );
-        };
-
-        const root = ReactDOM.createRoot(document.getElementById('root'));
-        root.render(<HabitTracker />);
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mobile menu -->
+      <div
+        id="mobile-menu"
+        class="hidden md:hidden border-t border-[#30363d] bg-[#0d1117]"
+      >
+        <div class="px-2 pt-2 pb-3 space-y-1">
+          <a
+            href="/"
+            class="block w-full text-left px-4 py-3 rounded-lg bg-[#21262d] text-white font-semibold"
+            >Home</a
+          >
+          <a
+            href="about.html"
+            class="block w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors"
+            >About</a
+          >
+          <a
+            href="contact.html"
+            class="block w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors"
+            >Contact</a
+          >
+          <a
+            href="app/"
+            class="block w-full text-center px-4 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors"
+            >Launch App</a
+          >
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+      <div class="text-center mb-16">
+        <h1 class="text-5xl md:text-6xl font-bold text-white mb-6">
+          Simple Habit Tracking
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-400 mb-8 max-w-3xl mx-auto">
+          A beautiful, minimalist, open-source habit tracker with a
+          year-at-a-glance view. Track up to 6 daily habits with color-coded
+          dots.
+        </p>
+        <div class="flex flex-col sm:flex-row gap-4 justify-center">
+          <a
+            href="app/"
+            class="px-8 py-4 bg-[#238636] hover:bg-[#2ea043] text-white text-lg font-semibold rounded-lg transition-colors"
+          >
+            Launch App
+          </a>
+          <a
+            href="https://github.com/tomspetter/HabitTracker"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="px-8 py-4 bg-[#21262d] hover:bg-[#30363d] text-white text-lg font-semibold rounded-lg transition-colors"
+          >
+            View on GitHub
+          </a>
+        </div>
+      </div>
+
+      <!-- Screenshot -->
+      <div class="mb-16">
+        <div class="bg-[#161b22] border border-[#30363d] rounded-lg p-4 sm:p-8">
+          <img
+            src="images/preview.png"
+            alt="HabitDot Preview"
+            class="w-full rounded-lg shadow-2xl"
+          />
+        </div>
+      </div>
+
+      <!-- Features Grid -->
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+        <div class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
+          <div class="text-3xl mb-4">📅</div>
+          <h3 class="text-xl font-bold text-white mb-2">Year-at-a-Glance</h3>
+          <p class="text-gray-400">
+            365-day calendar grid showing your entire year of habit tracking at
+            once.
+          </p>
+        </div>
+
+        <div class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
+          <div class="text-3xl mb-4">🌈</div>
+          <h3 class="text-xl font-bold text-white mb-2">Color-Coded Habits</h3>
+          <p class="text-gray-400">
+            Track up to 6 habits with beautiful rainbow colors for easy
+            identification.
+          </p>
+        </div>
+
+        <div class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
+          <div class="text-3xl mb-4">🔥</div>
+          <h3 class="text-xl font-bold text-white mb-2">Streak Tracking</h3>
+          <p class="text-gray-400">
+            Monitor your current streak and best streak for each habit.
+          </p>
+        </div>
+
+        <div class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
+          <div class="text-3xl mb-4">📊</div>
+          <h3 class="text-xl font-bold text-white mb-2">
+            Statistics & Analytics
+          </h3>
+          <p class="text-gray-400">
+            View completion rates, progress bars, and insights for all your
+            habits.
+          </p>
+        </div>
+
+        <div class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
+          <div class="text-3xl mb-4">🔒</div>
+          <h3 class="text-xl font-bold text-white mb-2">Secure & Private</h3>
+          <p class="text-gray-400">
+            Server-side authentication with bcrypt, CSRF protection, and rate
+            limiting.
+          </p>
+        </div>
+
+        <div class="bg-[#161b22] border border-[#30363d] rounded-lg p-6">
+          <div class="text-3xl mb-4">💾</div>
+          <h3 class="text-xl font-bold text-white mb-2">Export Your Data</h3>
+          <p class="text-gray-400">
+            Download your habit data as CSV or JSON. Import anytime.
+          </p>
+        </div>
+      </div>
+
+      <!-- CTA Section -->
+      <div
+        class="bg-[#161b22] border border-[#30363d] rounded-lg p-12 text-center"
+      >
+        <h2 class="text-3xl md:text-4xl font-bold text-white mb-4">
+          Ready to build better habits?
+        </h2>
+        <p class="text-xl text-gray-400 mb-8">
+          Get started with HabitDot today. Free and open source.
+        </p>
+        <a
+          href="app/"
+          class="inline-block px-8 py-4 bg-[#238636] hover:bg-[#2ea043] text-white text-lg font-semibold rounded-lg transition-colors"
+        >
+          Launch App
+        </a>
+        <a
+          href="https://github.com/tomspetter/HabitTracker"
+          target="_blank"
+          rel="noopener noreferrer"
+          class="inline-block px-8 py-4 bg-[#21262d] hover:bg-[#30363d] text-white text-lg font-semibold rounded-lg transition-colors"
+        >
+          View on GitHub
+        </a>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer
+      class="mt-16 py-8 border-t border-[#30363d] text-center text-gray-400 text-sm"
+    >
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div
+          class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-3"
+        >
+          <a
+            href="https://github.com/tomspetter/HabitTracker"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[#58a6ff] hover:underline"
+          >
+            View on GitHub
+          </a>
+          <span class="hidden sm:inline">•</span>
+          <a
+            href="https://buymeacoffee.com/tomspetter"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="text-[#58a6ff] hover:underline"
+          >
+            ☕ Buy Me a Coffee
+          </a>
+        </div>
+        <p class="text-xs text-gray-500">
+          © 2025 Tom Spetter • Open Source (MIT)
+        </p>
+      </div>
+    </footer>
+
+    <!-- Mobile Menu Script -->
+    <script>
+      const mobileMenuButton = document.getElementById("mobile-menu-button");
+      const mobileMenu = document.getElementById("mobile-menu");
+      const menuIcon = document.getElementById("menu-icon");
+      const closeIcon = document.getElementById("close-icon");
+
+      mobileMenuButton.addEventListener("click", () => {
+        mobileMenu.classList.toggle("hidden");
+        menuIcon.classList.toggle("hidden");
+        closeIcon.classList.toggle("hidden");
+      });
     </script>
-</body>
+  </body>
 </html>

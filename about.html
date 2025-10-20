@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About - HabitDot</title>
+    <meta name="description" content="Learn about HabitDot, an open-source habit tracking application built with simplicity and privacy in mind.">
+    <script defer src="https://cloud.umami.is/script.js" data-website-id="ee7b1e6e-fe20-470d-ba68-9f16c7309254"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+</head>
+<body class="bg-[#0d1117] text-gray-300">
+    <!-- Navigation -->
+    <nav class="bg-[#161b22] border-b border-[#30363d]">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo -->
+                <div class="flex items-center">
+                    <a href="/" class="focus:outline-none focus:ring-2 focus:ring-[#58a6ff] rounded">
+                        <img src="images/logo.svg" alt="HabitDot" class="h-10">
+                    </a>
+                </div>
+
+                <!-- Navigation Links -->
+                <div class="hidden md:flex items-center gap-1">
+                    <a href="/" class="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors">Home</a>
+                    <a href="about.html" class="px-4 py-2 rounded-lg text-white bg-[#21262d] font-semibold">About</a>
+                    <a href="contact.html" class="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors">Contact</a>
+                    <a href="app/" class="ml-2 px-6 py-2 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors">Launch App</a>
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-gray-300 hover:text-white p-2 focus:outline-none focus:ring-2 focus:ring-[#58a6ff] rounded" aria-label="Toggle menu">
+                        <svg id="menu-icon" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                        </svg>
+                        <svg id="close-icon" class="hidden" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile menu -->
+        <div id="mobile-menu" class="hidden md:hidden border-t border-[#30363d] bg-[#0d1117]">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="/" class="block w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors">Home</a>
+                <a href="about.html" class="block w-full text-left px-4 py-3 rounded-lg bg-[#21262d] text-white font-semibold">About</a>
+                <a href="contact.html" class="block w-full text-left px-4 py-3 rounded-lg text-gray-300 hover:text-white hover:bg-[#21262d] transition-colors">Contact</a>
+                <a href="app/" class="block w-full text-center px-4 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors">Launch App</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
+        <h1 class="text-4xl md:text-5xl font-bold text-white mb-8">About HabitDot</h1>
+
+        <div class="space-y-8">
+            <!-- Philosophy -->
+            <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-8">
+                <h2 class="text-2xl font-bold text-white mb-4">Our Philosophy</h2>
+                <p class="text-gray-300 mb-4">
+                    HabitDot was created with a simple belief: habit tracking should be beautiful, minimal, and respect your privacy.
+                </p>
+                <p class="text-gray-300">
+                    Inspired by GitHub's contribution graph, HabitDot provides a year-at-a-glance view of your habits with colorful circular dots. No complicated features, no distracting notifications—just a clean, focused tool to help you build better habits.
+                </p>
+            </section>
+
+            <!-- Open Source -->
+            <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-8">
+                <h2 class="text-2xl font-bold text-white mb-4">Open Source & Free</h2>
+                <p class="text-gray-300 mb-4">
+                    HabitDot is completely free and open source under the MIT license. You can:
+                </p>
+                <ul class="list-disc list-inside text-gray-300 space-y-2 mb-4">
+                    <li>Use it for free, forever</li>
+                    <li>View and audit the source code</li>
+                    <li>Self-host on your own server</li>
+                    <li>Fork and modify for your own needs</li>
+                    <li>Contribute improvements back to the project</li>
+                </ul>
+                <a href="https://github.com/tomspetter/HabitTracker" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-[#58a6ff] hover:underline">
+                    View on GitHub →
+                </a>
+            </section>
+
+            <!-- Privacy & Security -->
+            <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-8">
+                <h2 class="text-2xl font-bold text-white mb-4">Privacy & Security</h2>
+                <p class="text-gray-300 mb-4">
+                    Your data belongs to you. HabitDot implements industry-standard security practices:
+                </p>
+                <ul class="list-disc list-inside text-gray-300 space-y-2">
+                    <li><strong class="text-white">Bcrypt password hashing</strong> - Your password is never stored in plain text</li>
+                    <li><strong class="text-white">Server-side sessions</strong> - Secure authentication with automatic timeout</li>
+                    <li><strong class="text-white">CSRF protection</strong> - Protected against cross-site attacks</li>
+                    <li><strong class="text-white">Rate limiting</strong> - Brute force attack prevention</li>
+                    <li><strong class="text-white">Data export</strong> - Download your data anytime in CSV or JSON format</li>
+                    <li><strong class="text-white">Self-hosting option</strong> - Keep complete control of your data</li>
+                </ul>
+            </section>
+
+            <!-- Technology Stack -->
+            <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-8">
+                <h2 class="text-2xl font-bold text-white mb-4">Technology Stack</h2>
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Frontend</h3>
+                        <ul class="text-gray-300 space-y-1">
+                            <li>React 18</li>
+                            <li>Tailwind CSS</li>
+                            <li>Pure JavaScript (ES6+)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-semibold text-white mb-2">Backend</h3>
+                        <ul class="text-gray-300 space-y-1">
+                            <li>PHP 8.3+</li>
+                            <li>JSON file storage</li>
+                            <li>Session-based auth</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Creator -->
+            <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-8">
+                <h2 class="text-2xl font-bold text-white mb-4">Creator</h2>
+                <p class="text-gray-300 mb-4">
+                    HabitDot is created and maintained by <strong class="text-white">Tom Spetter</strong>, a developer passionate about building simple, useful tools that respect user privacy.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="https://github.com/tomspetter" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-[#58a6ff] hover:underline">
+                        GitHub Profile →
+                    </a>
+                    <a href="https://buymeacoffee.com/tomspetter" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-[#58a6ff] hover:underline">
+                        ☕ Buy Me a Coffee →
+                    </a>
+                </div>
+            </section>
+
+            <!-- Contributing -->
+            <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-8">
+                <h2 class="text-2xl font-bold text-white mb-4">Contributing</h2>
+                <p class="text-gray-300 mb-4">
+                    While HabitDot is primarily a personal project, contributions are welcome! Feel free to:
+                </p>
+                <ul class="list-disc list-inside text-gray-300 space-y-2 mb-4">
+                    <li>Report bugs or suggest features via GitHub Issues</li>
+                    <li>Submit pull requests for bug fixes or improvements</li>
+                    <li>Fork the project and customize it for your needs</li>
+                    <li>Share HabitDot with others who might find it useful</li>
+                </ul>
+                <a href="https://github.com/tomspetter/HabitTracker/issues" target="_blank" rel="noopener noreferrer" class="inline-flex items-center text-[#58a6ff] hover:underline">
+                    View Issues on GitHub →
+                </a>
+            </section>
+
+            <!-- License -->
+            <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-8">
+                <h2 class="text-2xl font-bold text-white mb-4">License</h2>
+                <p class="text-gray-300 mb-2">
+                    <strong class="text-white">Code:</strong> MIT License - Free to use, modify, and distribute
+                </p>
+                <p class="text-gray-300">
+                    <strong class="text-white">Logo/Branding:</strong> © Tom Spetter - Please use your own branding when forking or deploying
+                </p>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="mt-16 py-8 border-t border-[#30363d] text-center text-gray-400 text-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex flex-col sm:flex-row justify-center items-center gap-3 mb-3">
+                <a href="https://github.com/tomspetter/HabitTracker" target="_blank" rel="noopener noreferrer" class="text-[#58a6ff] hover:underline">
+                    View on GitHub
+                </a>
+                <span class="hidden sm:inline">•</span>
+                <a href="https://buymeacoffee.com/tomspetter" target="_blank" rel="noopener noreferrer" class="text-[#58a6ff] hover:underline">
+                    ☕ Buy Me a Coffee
+                </a>
+            </div>
+            <p class="text-xs text-gray-500">
+                © 2025 Tom Spetter • Open Source (MIT)
+            </p>
+        </div>
+    </footer>
+
+    <!-- Mobile Menu Script -->
+    <script>
+        const mobileMenuButton = document.getElementById('mobile-menu-button');
+        const mobileMenu = document.getElementById('mobile-menu');
+        const menuIcon = document.getElementById('menu-icon');
+        const closeIcon = document.getElementById('close-icon');
+
+        mobileMenuButton.addEventListener('click', () => {
+            mobileMenu.classList.toggle('hidden');
+            menuIcon.classList.toggle('hidden');
+            closeIcon.classList.toggle('hidden');
+        });
+    </script>
+</body>
+</html>

@@ -54,14 +54,15 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
 
 1. Download or clone this repository
 2. Place files in your web server directory
-3. Ensure the `data/` directory is writable by the web server
+3. Ensure the `app/data/` directory is writable by the web server
 4. Start your web server (or use PHP's built-in server for testing):
    ```bash
    php -S localhost:8000
    ```
-5. Open `http://localhost:8000` in your web browser
-6. Click "Register" to create your account
-7. Start tracking your habits!
+5. Open `http://localhost:8000` in your web browser (marketing site)
+6. Click "Launch App" to access the habit tracker at `http://localhost:8000/app/`
+7. Click "Register" to create your account
+8. Start tracking your habits!
 
 ### First Time Setup
 
@@ -323,20 +324,25 @@ See [SECURITY.md](SECURITY.md) for full security details.
 
 ```
 HabitTracker/
-├── index.html          # Main application (React frontend)
-├── config.php          # Configuration and security functions
-├── api/
-│   ├── auth.php        # Authentication endpoints
-│   ├── account.php     # Account management endpoints (password, delete)
-│   ├── data.php        # Data storage/export/import endpoints
-│   └── .htaccess       # Security headers
-├── data/
-│   ├── .htaccess       # Blocks direct file access
-│   ├── users.json      # User credentials (hashed)
-│   ├── user_*.json     # Per-user habit data
-│   └── login_attempts.json # Rate limiting data
+├── index.html          # Marketing landing page
+├── about.html          # About page
+├── contact.html        # Contact page
+├── app/                # Main application
+│   ├── index.html      # Habit tracker (React frontend)
+│   ├── config.php      # Configuration and security functions
+│   ├── api/
+│   │   ├── auth.php    # Authentication endpoints
+│   │   ├── account.php # Account management endpoints
+│   │   ├── data.php    # Data storage/export/import endpoints
+│   │   └── .htaccess   # Security headers
+│   └── data/
+│       ├── .htaccess   # Blocks direct file access
+│       ├── users.json  # User credentials (hashed)
+│       ├── user_*.json # Per-user habit data
+│       └── login_attempts.json # Rate limiting data
 ├── images/
-│   └── logo.svg        # HabitDot logo
+│   ├── logo.svg        # HabitDot logo
+│   └── preview.png     # Screenshot for marketing site
 ├── README.md           # This file
 └── SECURITY.md         # Security documentation
 ```
