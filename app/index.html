@@ -196,42 +196,138 @@
         };
 
         const LoginScreen = ({ onLogin }) => {
-            const [username, setUsername] = useState('');
+            const [email, setEmail] = useState('');
             const [password, setPassword] = useState('');
+            const [verificationCode, setVerificationCode] = useState('');
             const [error, setError] = useState('');
+            const [message, setMessage] = useState('');
             const [isRegistering, setIsRegistering] = useState(false);
+            const [awaitingVerification, setAwaitingVerification] = useState(false);
             const [loading, setLoading] = useState(false);
+            const [canResend, setCanResend] = useState(true);
+            const [resendCooldown, setResendCooldown] = useState(0);
 
-            const handleSubmit = async (e) => {
-                e.preventDefault();
+            // Cooldown timer for resend button
+            React.useEffect(() => {
+                if (resendCooldown > 0) {
+                    const timer = setTimeout(() => {
+                        setResendCooldown(resendCooldown - 1);
+                        if (resendCooldown === 1) setCanResend(true);
+                    }, 1000);
+                    return () => clearTimeout(timer);
+                }
+            }, [resendCooldown]);
+
+            const handleResendCode = async () => {
+                if (!canResend) return;
+
                 setError('');
+                setMessage('');
                 setLoading(true);
 
                 try {
-                    const action = isRegistering ? 'register' : 'login';
-                    const response = await fetch(`api/auth.php?action=${action}`, {
+                    const csrfResponse = await fetch('api/auth.php?action=csrf');
+                    const csrfData = await csrfResponse.json();
+
+                    const response = await fetch('api/auth.php?action=resend', {
                         method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ username, password }),
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            email,
+                            csrf_token: csrfData.csrf_token
+                        })
                     });
 
                     const data = await response.json();
 
                     if (data.success) {
-                        if (isRegistering) {
-                            // After registration, switch to login
-                            setIsRegistering(false);
-                            setError('');
-                            setPassword('');
-                            alert('Account created! Please log in.');
-                        } else {
-                            // Login successful
-                            onLogin(data.username, data.csrf_token);
-                        }
+                        setMessage(data.message);
+                        setCanResend(false);
+                        setResendCooldown(60);
                     } else {
-                        setError(data.error || 'An error occurred');
+                        setError(data.error);
+                    }
+                } catch (err) {
+                    setError('Failed to resend code. Please try again.');
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            const handleSubmit = async (e) => {
+                e.preventDefault();
+                setError('');
+                setMessage('');
+                setLoading(true);
+
+                try {
+                    // Get CSRF token
+                    const csrfResponse = await fetch('api/auth.php?action=csrf');
+                    const csrfData = await csrfResponse.json();
+
+                    // Registration - Step 1: Send verification code
+                    if (isRegistering && !awaitingVerification) {
+                        const response = await fetch('api/auth.php?action=register', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email,
+                                password,
+                                csrf_token: csrfData.csrf_token
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            setAwaitingVerification(true);
+                            setMessage('Verification code sent to ' + email + '. Check your email!');
+                            setCanResend(false);
+                            setResendCooldown(60);
+                        } else {
+                            setError(data.error);
+                        }
+                    }
+                    // Registration - Step 2: Verify code
+                    else if (isRegistering && awaitingVerification) {
+                        const response = await fetch('api/auth.php?action=verify', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email,
+                                code: verificationCode,
+                                csrf_token: csrfData.csrf_token
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            // User is now logged in
+                            onLogin(data.user.email, csrfData.csrf_token);
+                        } else {
+                            setError(data.error);
+                        }
+                    }
+                    // Login
+                    else {
+                        const response = await fetch('api/auth.php?action=login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                email,
+                                password,
+                                csrf_token: csrfData.csrf_token
+                            })
+                        });
+
+                        const data = await response.json();
+
+                        if (data.success) {
+                            onLogin(data.user.email, csrfData.csrf_token);
+                        } else {
+                            setError(data.error);
+                        }
                     }
                 } catch (err) {
                     setError('Network error. Please try again.');
@@ -246,60 +342,131 @@
                         <div className="flex justify-center mb-6">
                             <img src="../images/logo.svg" alt="Habit Tracker" className="h-12" />
                         </div>
-                        <form onSubmit={handleSubmit} aria-label={isRegistering ? "Registration form" : "Login form"}>
-                            <div className="mb-4">
-                                <label htmlFor="username-input" className="block text-gray-300 mb-2">Username</label>
-                                <input
-                                    id="username-input"
-                                    type="text"
-                                    value={username}
-                                    onChange={(e) => setUsername(e.target.value)}
-                                    className="w-full px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
-                                    placeholder="Enter username"
-                                    aria-required="true"
-                                    disabled={loading}
-                                />
+                        {awaitingVerification ? (
+                            // Verification Code Entry Screen
+                            <div>
+                                <h2 className="text-2xl font-bold text-white mb-2 text-center">Verify Your Email</h2>
+                                <p className="text-gray-400 mb-6 text-center">
+                                    We sent a 6-digit code to<br />
+                                    <span className="text-white font-semibold">{email}</span>
+                                </p>
+                                <form onSubmit={handleSubmit}>
+                                    <div className="mb-4">
+                                        <label htmlFor="code-input" className="block text-gray-300 mb-2 text-center">Verification Code</label>
+                                        <input
+                                            id="code-input"
+                                            type="text"
+                                            maxLength="6"
+                                            pattern="[0-9]{6}"
+                                            value={verificationCode}
+                                            onChange={(e) => setVerificationCode(e.target.value.replace(/\D/g, ''))}
+                                            className="w-full px-4 py-3 bg-[#0d1117] border border-[#30363d] rounded-lg text-white text-center text-2xl font-mono tracking-widest focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
+                                            placeholder="000000"
+                                            aria-required="true"
+                                            disabled={loading}
+                                            autoFocus
+                                        />
+                                    </div>
+                                    {message && <p className="text-green-400 mb-4 text-center" role="status">{message}</p>}
+                                    {error && <p className="text-red-400 mb-4 text-center" role="alert">{error}</p>}
+                                    <button
+                                        type="submit"
+                                        className="w-full px-4 py-3 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043] disabled:opacity-50 disabled:cursor-not-allowed mb-3"
+                                        disabled={loading || verificationCode.length !== 6}
+                                    >
+                                        {loading ? 'Verifying...' : 'Verify & Create Account'}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={handleResendCode}
+                                        className="w-full px-4 py-2 bg-[#21262d] hover:bg-[#30363d] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#58a6ff] disabled:opacity-50 disabled:cursor-not-allowed mb-2"
+                                        disabled={!canResend || loading}
+                                    >
+                                        {canResend ? 'Resend Code' : `Resend in ${resendCooldown}s`}
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            setAwaitingVerification(false);
+                                            setVerificationCode('');
+                                            setError('');
+                                            setMessage('');
+                                        }}
+                                        className="w-full px-4 py-2 text-[#58a6ff] hover:underline focus:outline-none"
+                                        disabled={loading}
+                                    >
+                                        Change Email Address
+                                    </button>
+                                </form>
+                                <p className="text-gray-500 text-xs mt-4 text-center">
+                                    Code expires in 15 minutes
+                                </p>
                             </div>
-                            <div className="mb-4">
-                                <label htmlFor="password-input" className="block text-gray-300 mb-2">Password</label>
-                                <input
-                                    id="password-input"
-                                    type="password"
-                                    value={password}
-                                    onChange={(e) => setPassword(e.target.value)}
-                                    className="w-full px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
-                                    placeholder="Enter password"
-                                    aria-required="true"
-                                    aria-invalid={error ? 'true' : 'false'}
-                                    aria-describedby={error ? 'password-error' : undefined}
-                                    disabled={loading}
-                                />
+                        ) : (
+                            // Email + Password Entry Screen
+                            <div>
+                                <h2 className="text-2xl font-bold text-white mb-6 text-center">
+                                    {isRegistering ? 'Create Account' : 'Welcome Back'}
+                                </h2>
+                                <form onSubmit={handleSubmit}>
+                                    <div className="mb-4">
+                                        <label htmlFor="email-input" className="block text-gray-300 mb-2">Email</label>
+                                        <input
+                                            id="email-input"
+                                            type="email"
+                                            value={email}
+                                            onChange={(e) => setEmail(e.target.value)}
+                                            className="w-full px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
+                                            placeholder="you@example.com"
+                                            aria-required="true"
+                                            disabled={loading}
+                                            autoFocus
+                                        />
+                                    </div>
+                                    <div className="mb-4">
+                                        <label htmlFor="password-input" className="block text-gray-300 mb-2">Password</label>
+                                        <input
+                                            id="password-input"
+                                            type="password"
+                                            value={password}
+                                            onChange={(e) => setPassword(e.target.value)}
+                                            className="w-full px-4 py-2 bg-[#0d1117] border border-[#30363d] rounded-lg text-white focus:outline-none focus:border-[#58a6ff] focus:ring-2 focus:ring-[#58a6ff]"
+                                            placeholder={isRegistering ? 'At least 8 characters' : 'Enter password'}
+                                            aria-required="true"
+                                            aria-invalid={error ? 'true' : 'false'}
+                                            aria-describedby={error ? 'error-message' : undefined}
+                                            disabled={loading}
+                                        />
+                                    </div>
+                                    {message && <p className="text-green-400 mb-4" role="status">{message}</p>}
+                                    {error && <p id="error-message" className="text-red-400 mb-4" role="alert">{error}</p>}
+                                    <button
+                                        type="submit"
+                                        className="w-full px-4 py-2 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043] disabled:opacity-50 disabled:cursor-not-allowed"
+                                        disabled={loading}
+                                    >
+                                        {loading ? 'Please wait...' : (isRegistering ? 'Send Verification Code' : 'Login')}
+                                    </button>
+                                </form>
+                                <div className="mt-4 text-center">
+                                    <button
+                                        onClick={() => {
+                                            setIsRegistering(!isRegistering);
+                                            setError('');
+                                            setMessage('');
+                                        }}
+                                        className="text-[#58a6ff] hover:underline focus:outline-none"
+                                        disabled={loading}
+                                    >
+                                        {isRegistering ? 'Already have an account? Login' : "Don't have an account? Register"}
+                                    </button>
+                                </div>
+                                {isRegistering && (
+                                    <p className="text-gray-400 text-sm mt-4 text-center">
+                                        Password must be at least 8 characters
+                                    </p>
+                                )}
                             </div>
-                            {error && <p id="password-error" className="text-red-400 mb-4" role="alert">{error}</p>}
-                            <button
-                                type="submit"
-                                className="w-full px-4 py-2 bg-[#238636] hover:bg-[#2ea043] text-white font-semibold rounded-lg transition-colors focus:outline-none focus:ring-2 focus:ring-[#2ea043] disabled:opacity-50 disabled:cursor-not-allowed"
-                                disabled={loading}
-                            >
-                                {loading ? 'Please wait...' : (isRegistering ? 'Register' : 'Login')}
-                            </button>
-                        </form>
-                        <div className="mt-4 text-center">
-                            <button
-                                onClick={() => {
-                                    setIsRegistering(!isRegistering);
-                                    setError('');
-                                }}
-                                className="text-[#58a6ff] hover:underline focus:outline-none"
-                                disabled={loading}
-                            >
-                                {isRegistering ? 'Already have an account? Login' : "Don't have an account? Register"}
-                            </button>
-                        </div>
-                        {isRegistering && (
-                            <p className="text-gray-400 text-sm mt-4 text-center">
-                                Password must be at least 8 characters
-                            </p>
                         )}
                     </div>
 
@@ -333,7 +500,7 @@
 
         const HabitTracker = () => {
             const [isLoggedIn, setIsLoggedIn] = useState(false);
-            const [username, setUsername] = useState('');
+            const [email, setEmail] = useState('');
             const [csrfToken, setCsrfToken] = useState('');
             const [loading, setLoading] = useState(true);
             const [currentPage, setCurrentPage] = useState('tracker');
@@ -442,7 +609,7 @@
 
                         if (data.loggedIn) {
                             setIsLoggedIn(true);
-                            setUsername(data.username);
+                            setEmail(data.user.email);
                             setCsrfToken(data.csrf_token);
                             await loadData();
                         }
@@ -637,7 +804,7 @@
                     console.error('Logout failed:', err);
                 } finally {
                     setIsLoggedIn(false);
-                    setUsername('');
+                    setEmail('');
                     setCsrfToken('');
                     setHabits([]);
                     setHabitData({});
@@ -656,7 +823,7 @@
 
             const handleLogin = (user, token) => {
                 setIsLoggedIn(true);
-                setUsername(user);
+                setEmail(user);
                 setCsrfToken(token);
                 setCurrentPage('tracker');
                 loadData();
@@ -1117,17 +1284,9 @@
                                 <h2 className="text-lg font-bold text-white mb-3">Account Information</h2>
                                 <div className="grid md:grid-cols-2 gap-3">
                                     <div>
-                                        <label className="block text-gray-400 text-xs mb-1.5">Username</label>
+                                        <label className="block text-gray-400 text-xs mb-1.5">Email</label>
                                         <div className="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-white text-sm">
-                                            {username}
-                                        </div>
-                                    </div>
-                                    <div className="opacity-50">
-                                        <label className="block text-gray-400 text-xs mb-1.5">
-                                            Email <span className="text-yellow-500">(Coming Soon)</span>
-                                        </label>
-                                        <div className="bg-[#0d1117] border border-[#30363d] rounded px-3 py-2 text-gray-500 text-sm">
-                                            Not set
+                                            {email}
                                         </div>
                                     </div>
                                 </div>

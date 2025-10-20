@@ -28,3 +28,6 @@ Thumbs.db
 data/users.json
 data/user_*.json
 data/login_attempts.json
+
+# Email configuration (contains API keys!)
+app/email_config.php
