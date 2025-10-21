@@ -8,6 +8,21 @@ This habit tracker uses PHP-based server-side authentication with proper passwor
 
 ## Implemented Security Features
 
+### Data Encryption (MySQL Version)
+- ✅ **AES-256-CBC encryption**: Habit names are encrypted server-side before storage in database
+- ✅ **User-specific encryption keys**: Each user gets a unique encryption key derived from master key + user ID
+- ✅ **Unique IVs**: Each encrypted value uses its own Initialization Vector for maximum security
+- ✅ **Environment variable storage**: Master encryption key stored in `HABIT_ENCRYPTION_KEY` environment variable (never in code)
+- ✅ **Breach protection**: Even if database is compromised, habit names remain encrypted and unreadable without the master key
+- ✅ **OpenSSL implementation**: Uses PHP's OpenSSL extension with industry-standard AES-256-CBC
+
+**What's Protected in a Database Breach:**
+- ✅ Habit names (encrypted) - e.g., "Stop drinking", "Therapy sessions"
+- ✅ Passwords (bcrypt hashed) - cannot be reversed
+- ❌ Dates (not encrypted) - needed for efficient queries, meaningless without habit names
+- ❌ Colors (not encrypted) - just UI preferences, not sensitive
+- ❌ Emails (not encrypted) - needed for login, not considered secret
+
 ### Authentication & Email Verification
 - ✅ **Email verification**: Required for new account registration using 6-digit codes
 - ✅ **Password reset flow**: Secure 3-step password recovery with verification codes
@@ -23,8 +38,8 @@ This habit tracker uses PHP-based server-side authentication with proper passwor
 - ✅ **No client-side password storage**: All authentication happens server-side
 
 ### Data Storage
-- ✅ **Server-side storage**: All habit data is stored in JSON files on the server
-- ✅ **Per-user data isolation**: Each user has their own data file
+- ✅ **Server-side storage**: All habit data is stored securely on the server (JSON or MySQL)
+- ✅ **Per-user data isolation**: Each user has their own data with unique encryption keys
 - ✅ **Protected data directory**: `.htaccess` prevents direct access to JSON files
 - ✅ **No localStorage usage**: All sensitive data stays on the server
 - ✅ **Secure file permissions**: Data directory is protected from web access
@@ -133,15 +148,17 @@ If deploying to a public web server, **you MUST complete this checklist:**
 
 #### **Optional: For High-Security Needs**
 
-10. **Database Migration**
-    - Migrate from JSON files to MySQL/PostgreSQL
-    - Provides better access controls and transaction safety
-    - Overkill for most personal use cases
+10. ~~**Database Migration**~~ ✅ **COMPLETED - MySQL support with encryption**
+    - ✅ MySQL/PostgreSQL support implemented
+    - ✅ AES-256-CBC encryption for habit names
+    - ✅ User-specific encryption keys
+    - ✅ Environment variable for master encryption key
 
-11. **Encryption at Rest**
-    - Encrypt JSON files on disk
-    - Use PHP's openssl or sodium extension
-    - Only needed for highly sensitive data
+11. ~~**Encryption at Rest**~~ ✅ **COMPLETED - AES-256 encryption**
+    - ✅ Habit names encrypted with AES-256-CBC
+    - ✅ Uses PHP's OpenSSL extension
+    - ✅ User-specific keys with unique IVs per value
+    - ✅ Master key stored in environment variable
 
 12. **Two-Factor Authentication (2FA)**
     - Add TOTP support (Google Authenticator, Authy)
