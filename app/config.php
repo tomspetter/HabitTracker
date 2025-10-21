@@ -183,20 +183,6 @@ function decryptHabitName($encryptedData, $userId) {
 }
 
 // ============================================================================
-// LEGACY FILE PATHS (for migration only)
-// ============================================================================
-
-// File paths - kept for backward compatibility during migration
-define('DATA_DIR', __DIR__ . '/data');
-define('USERS_FILE', DATA_DIR . '/users.json');
-define('LOGIN_ATTEMPTS_FILE', DATA_DIR . '/login_attempts.json');
-
-// Ensure data directory exists and is writable
-if (!file_exists(DATA_DIR)) {
-    mkdir(DATA_DIR, 0755, true);
-}
-
-// ============================================================================
 // SECURITY SETTINGS
 // ============================================================================
 
