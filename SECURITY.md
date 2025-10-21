@@ -38,11 +38,11 @@ This habit tracker uses PHP-based server-side authentication with proper passwor
 - ✅ **No client-side password storage**: All authentication happens server-side
 
 ### Data Storage
-- ✅ **Server-side storage**: All habit data is stored securely on the server (JSON or MySQL)
+- ✅ **MySQL database**: All habit data is stored securely in MySQL database
 - ✅ **Per-user data isolation**: Each user has their own data with unique encryption keys
-- ✅ **Protected data directory**: `.htaccess` prevents direct access to JSON files
+- ✅ **Protected database**: Encrypted habit names ensure privacy even in a database breach
 - ✅ **No localStorage usage**: All sensitive data stays on the server
-- ✅ **Secure file permissions**: Data directory is protected from web access
+- ✅ **Database access control**: MySQL user privileges limit access to application database only
 
 ### Security Headers
 - ✅ **X-Frame-Options**: Prevents clickjacking attacks
@@ -173,13 +173,15 @@ If deploying to a public web server, **you MUST complete this checklist:**
 ### For Developers
 
 If forking this project for commercial/SaaS use, consider:
-- Database support (MySQL/PostgreSQL) instead of JSON files
+- ✅ **MySQL database** - already implemented with encryption
 - Redis/Memcached for session storage at scale
 - Container deployment (Docker/Kubernetes)
 - CI/CD pipeline with security scanning
 - Automated security testing (OWASP ZAP, etc.)
 - DDoS protection (Cloudflare, AWS Shield)
 - Compliance certifications (SOC 2, GDPR, etc.)
+- Database connection pooling for high concurrency
+- Read replicas for scaling read operations
 
 ## Email Security Features (v1.0.0)
 

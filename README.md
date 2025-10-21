@@ -56,7 +56,8 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
 
 ### Requirements
 
-- PHP 7.4 or higher
+- PHP 7.4 or higher with OpenSSL and PDO MySQL extensions enabled
+- MySQL 5.7+ or MariaDB 10.2+
 - Web server (Apache recommended for `.htaccess` support)
 - Email service account (Brevo/Sendinblue recommended - free tier available)
 - cURL extension enabled in PHP
@@ -65,8 +66,45 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
 
 1. Download or clone this repository
 2. Place files in your web server directory
-3. Ensure the `app/data/` directory is writable by the web server
-4. **Configure Email Service** (required for registration and password reset):
+3. **Set up MySQL database**:
+   ```bash
+   # Create database
+   mysql -u root -p -e "CREATE DATABASE habittracker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+   # Import schema
+   mysql -u root -p habittracker < app/schema.sql
+
+   # Verify tables were created
+   mysql -u root -p habittracker -e "SHOW TABLES;"
+   ```
+
+4. **Generate encryption key** (for habit name encryption):
+   ```bash
+   openssl rand -base64 32
+   # Save this key securely - you'll need it for the environment variables
+   ```
+
+5. **Configure environment variables** (database and encryption):
+
+   **For Apache (.htaccess in project root):**
+   ```apache
+   SetEnv DB_HOST "localhost"
+   SetEnv DB_NAME "habittracker"
+   SetEnv DB_USER "root"
+   SetEnv DB_PASS "your_mysql_password"
+   SetEnv HABIT_ENCRYPTION_KEY "your_generated_key_from_step_4"
+   ```
+
+   **For nginx (PHP-FPM pool config):**
+   ```ini
+   env[DB_HOST] = localhost
+   env[DB_NAME] = habittracker
+   env[DB_USER] = root
+   env[DB_PASS] = your_mysql_password
+   env[HABIT_ENCRYPTION_KEY] = your_generated_key_from_step_4
+   ```
+
+6. **Configure Email Service** (required for registration and password reset):
    ```bash
    cd app/
    cp email_config.sample.php email_config.php
@@ -78,15 +116,24 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
    - Go to **Settings** → **API Keys** → Create a new API key
    - Add your sender email and verify your domain (see DNS setup section below)
 
-5. Start your web server (or use PHP's built-in server for testing):
+7. **Verify configuration**:
+   ```bash
+   # Test database connection
+   php -r "require 'app/config.php'; try { getDBConnection(); echo 'Database: Connected\n'; } catch (Exception \$e) { echo 'Database: Failed\n'; }"
+
+   # Test encryption key
+   php -r "echo getenv('HABIT_ENCRYPTION_KEY') ? 'Encryption Key: OK\n' : 'Encryption Key: NOT SET\n';"
+   ```
+
+8. Start your web server (or use PHP's built-in server for testing):
    ```bash
    php -S localhost:8000
    ```
-6. Open `http://localhost:8000` in your web browser (marketing site)
-7. Click "Launch App" to access the habit tracker at `http://localhost:8000/app/`
-8. Click "Register" to create your account
-9. Check your email for the 6-digit verification code
-10. Start tracking your habits!
+9. Open `http://localhost:8000` in your web browser (marketing site)
+10. Click "Launch App" to access the habit tracker at `http://localhost:8000/app/`
+11. Click "Register" to create your account
+12. Check your email for the 6-digit verification code
+13. Start tracking your habits!
 
 ### Email DNS Setup (for production)
 
@@ -139,16 +186,46 @@ Brevo provides these records in **Senders & IP** → **Domains** after you add y
    scp -r HabitTracker/ user@server:/var/www/yourdomain.com/
    ```
 
-3. **Set Proper Permissions**
+3. **Configure MySQL Database**
 
    ```bash
-   # Make data directory writable by web server only
-   sudo chown -R www-data:www-data /var/www/yourdomain.com/data
-   sudo chmod 700 /var/www/yourdomain.com/data
-   sudo chmod 600 /var/www/yourdomain.com/data/*
+   # Create production database
+   mysql -u root -p -e "CREATE DATABASE habittracker CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;"
+
+   # Import schema
+   mysql -u root -p habittracker < app/schema.sql
+
+   # Create database user (recommended)
+   mysql -u root -p -e "CREATE USER 'habittracker'@'localhost' IDENTIFIED BY 'strong_password_here';"
+   mysql -u root -p -e "GRANT ALL PRIVILEGES ON habittracker.* TO 'habittracker'@'localhost';"
+   mysql -u root -p -e "FLUSH PRIVILEGES;"
    ```
 
-4. **Configure Apache Virtual Host**
+4. **Set Environment Variables**
+
+   Generate encryption key and configure environment:
+   ```bash
+   # Generate encryption key
+   openssl rand -base64 32
+
+   # Add to Apache .htaccess or virtual host config:
+   SetEnv DB_HOST "localhost"
+   SetEnv DB_NAME "habittracker"
+   SetEnv DB_USER "habittracker"
+   SetEnv DB_PASS "your_db_password"
+   SetEnv HABIT_ENCRYPTION_KEY "your_generated_key"
+   ```
+
+5. **Set Proper Permissions**
+
+   ```bash
+   # Protect configuration files
+   sudo chmod 600 app/email_config.php
+   sudo chmod 644 app/config.php
+   sudo chmod 644 app/schema.sql
+   ```
+
+6. **Configure Apache Virtual Host**
 
    ```apache
    <VirtualHost *:443>
@@ -177,7 +254,7 @@ Brevo provides these records in **Senders & IP** → **Domains** after you add y
    </VirtualHost>
    ```
 
-5. **Update PHP Configuration**
+7. **Update PHP Configuration**
 
    ```bash
    # Edit php.ini for production
@@ -194,30 +271,31 @@ Brevo provides these records in **Senders & IP** → **Domains** after you add y
    session.cookie_httponly = On
    ```
 
-6. **Test the Deployment**
+8. **Test the Deployment**
 
    - Visit `https://yourdomain.com`
    - Verify HTTPS is working (green padlock)
    - Test registration and login
    - Check that data saves properly
 
-7. **Set Up Backups**
+9. **Set Up Backups**
    ```bash
-   # Cron job to backup data directory daily
-   0 2 * * * tar -czf /backups/habit-data-$(date +\%Y\%m\%d).tar.gz /var/www/yourdomain.com/data/
+   # Cron job to backup MySQL database daily
+   0 2 * * * mysqldump -u habittracker -p'your_password' habittracker | gzip > /backups/habittracker-$(date +\%Y\%m\%d).sql.gz
    ```
 
 ### Security Checklist for Production
 
 - [ ] HTTPS enabled and enforced
-- [ ] Data directory has 700 permissions
-- [ ] JSON files have 600 permissions
+- [ ] MySQL database created with proper user privileges
+- [ ] Encryption key set in environment variables (never in code)
+- [ ] Database credentials set in environment variables
 - [ ] PHP `display_errors` is Off
 - [ ] PHP `expose_php` is Off
 - [ ] `.htaccess` files are in place
-- [ ] Regular backups configured
+- [ ] Regular database backups configured
 - [ ] Firewall configured (only 80/443 open)
-- [ ] Keep PHP and server software updated
+- [ ] Keep PHP, MySQL, and server software updated
 - [ ] Monitor server logs regularly
 
 ### Recommended: Additional Hardening
@@ -241,8 +319,9 @@ For extra security on public servers:
    # Configure to ban IPs after failed login attempts
    ```
 
-3. **Database Migration** (Optional)
-   - Consider migrating from JSON to MySQL/PostgreSQL for better performance and security at scale
+3. **Encryption Key Rotation** (Advanced)
+   - Implement encryption key rotation for long-term deployments
+   - Requires re-encrypting all habit names with new key
 
 See [SECURITY.md](SECURITY.md) for complete security documentation.
 
@@ -344,11 +423,11 @@ See [SECURITY.md](SECURITY.md) for full security details.
 
 - **Better Mobile UX**: Larger tap targets, swipe gestures, improved scrolling
 - **Dark/Light Theme Toggle**: User-selectable color schemes
-- **Email Reminders**: Daily notifications and streak alerts (requires email integration)
+- **Email Reminders**: Daily notifications and streak alerts
 - **Achievement Badges**: Milestone celebrations (7-day, 30-day streaks, etc.)
-- **Database Support**: Option to use MySQL/PostgreSQL instead of JSON files
 - **Two-Factor Authentication**: Optional 2FA for enhanced security
 - **Multi-year Support**: View and track habits across multiple years
+- **Encryption Key Rotation**: Automated key rotation with re-encryption
 
 ## Technology Stack
 
@@ -360,9 +439,10 @@ See [SECURITY.md](SECURITY.md) for full security details.
 
 ### Backend
 
-- PHP 8.3+
-- JSON file-based storage
+- PHP 8.3+ with OpenSSL and PDO MySQL extensions
+- MySQL 5.7+ database with AES-256-CBC encryption
 - Session-based authentication
+- Server-side habit name encryption
 
 ## File Structure
 
@@ -373,17 +453,17 @@ HabitTracker/
 ├── contact.html        # Contact page
 ├── app/                # Main application
 │   ├── index.html      # Habit tracker (React frontend)
-│   ├── config.php      # Configuration and security functions
+│   ├── config.php      # Configuration, encryption, and database functions
+│   ├── schema.sql      # MySQL database schema
+│   ├── verification_helpers.php  # Email verification helpers
+│   ├── email_service.php         # Email sending service
+│   ├── email_config.php          # Email API configuration (not in git)
 │   ├── api/
-│   │   ├── auth.php    # Authentication endpoints
-│   │   ├── account.php # Account management endpoints
-│   │   ├── data.php    # Data storage/export/import endpoints
+│   │   ├── auth.php    # Authentication endpoints (MySQL)
+│   │   ├── account.php # Account management endpoints (MySQL)
+│   │   ├── data.php    # Data storage/export/import endpoints (MySQL)
 │   │   └── .htaccess   # Security headers
-│   └── data/
-│       ├── .htaccess   # Blocks direct file access
-│       ├── users.json  # User credentials (hashed)
-│       ├── user_*.json # Per-user habit data
-│       └── login_attempts.json # Rate limiting data
+│   └── QUICK_REFERENCE.md  # Quick setup guide
 ├── images/
 │   ├── logo.svg        # HabitDot logo
 │   └── preview.png     # Screenshot for marketing site
