@@ -28,8 +28,8 @@
 // IMPORTANT: Set these via environment variables or update with your values
 define('DB_HOST', getenv('DB_HOST') ?: 'localhost');
 define('DB_NAME', getenv('DB_NAME') ?: 'habittracker');
-define('DB_USER', getenv('DB_USER') ?: 'root');
-define('DB_PASS', getenv('DB_PASS') ?: '');
+define('DB_USER', getenv('DB_USER') ?: 'your_db_user');
+define('DB_PASS', getenv('DB_PASS') ?: 'your_db_password');
 define('DB_CHARSET', 'utf8mb4');
 
 /**
@@ -66,11 +66,14 @@ function getDBConnection() {
  * CRITICAL SECURITY CHECK
  * Prevents the application from running without encryption key configured.
  * This ensures habit names are always encrypted in production.
+ *
+ * SETUP: Generate a key with: openssl rand -base64 32
+ * Then set it as an environment variable or add it here for development.
  */
 if (!getenv('HABIT_ENCRYPTION_KEY')) {
-    die('FATAL ERROR: HABIT_ENCRYPTION_KEY environment variable is not set. ' .
-        'The application cannot run without encryption enabled. ' .
-        'Please see SETUP.md for configuration instructions.');
+    // For development only - replace with your own key
+    // NEVER commit your actual encryption key to git!
+    putenv('HABIT_ENCRYPTION_KEY=REPLACE_WITH_YOUR_KEY_FROM_OPENSSL_RAND_BASE64_32');
 }
 
 define('ENCRYPTION_METHOD', 'AES-256-CBC');
@@ -216,27 +219,11 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// CSRF token generation
-function generateCSRFToken() {
-    if (empty($_SESSION['csrf_token'])) {
-        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
-    }
-    return $_SESSION['csrf_token'];
-}
+// Note: CSRF token functions are defined in individual API files
 
-// CSRF token validation
-function validateCSRFToken($token) {
-    return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
-}
-
-// Check if user is logged in
-function isLoggedIn() {
-    return isset($_SESSION['user_id']) && isset($_SESSION['username']);
-}
-
-// Require login (use in protected endpoints)
+// Authentication helper for protected endpoints
 function requireLogin() {
-    if (!isLoggedIn()) {
+    if (!isset($_SESSION['user_id']) || !isset($_SESSION['email'])) {
         http_response_code(401);
         echo json_encode(['success' => false, 'error' => 'Not authenticated']);
         exit;

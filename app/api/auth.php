@@ -1,8 +1,9 @@
 <?php
 /**
- * Authentication API (Email-Based)
+ * Authentication API (MySQL Version)
  *
  * Handles user registration with email verification, login, logout, and session management.
+ * Uses MySQL database instead of JSON files.
  */
 
 require_once __DIR__ . '/../config.php';
@@ -15,88 +16,113 @@ header('Content-Type: application/json');
 $input = json_decode(file_get_contents('php://input'), true);
 $action = $_GET['action'] ?? '';
 
-// Helper function to read users
-function getUsers() {
-    $json = file_get_contents(USERS_FILE);
-    return json_decode($json, true) ?: [];
-}
+// ============================================================================
+// HELPER FUNCTIONS
+// ============================================================================
 
-// Helper function to save users
-function saveUsers($users) {
-    file_put_contents(USERS_FILE, json_encode($users, JSON_PRETTY_PRINT));
-}
-
-// Helper function to find user by email
+/**
+ * Find user by email
+ */
 function getUserByEmail($email) {
-    $users = getUsers();
-    foreach ($users as $user) {
-        if ($user['email'] === $email) {
-            return $user;
-        }
-    }
-    return null;
+    $pdo = getDBConnection();
+    $stmt = $pdo->prepare("SELECT * FROM users WHERE email = :email LIMIT 1");
+    $stmt->execute([':email' => $email]);
+    return $stmt->fetch();
 }
 
-// Helper function to check login attempts
+/**
+ * Check login attempts and enforce rate limiting
+ */
 function checkLoginAttempts($email) {
-    if (!file_exists(LOGIN_ATTEMPTS_FILE)) {
-        return true;
+    $pdo = getDBConnection();
+
+    // Clean up old attempts first
+    $pdo->exec("DELETE FROM login_attempts WHERE locked_until < NOW()");
+
+    $stmt = $pdo->prepare("
+        SELECT attempt_count, locked_until
+        FROM login_attempts
+        WHERE email = :email
+        LIMIT 1
+    ");
+    $stmt->execute([':email' => $email]);
+    $attempts = $stmt->fetch();
+
+    if (!$attempts) {
+        return true; // No attempts recorded, allow login
     }
 
-    $attempts = json_decode(file_get_contents(LOGIN_ATTEMPTS_FILE), true) ?: [];
-
-    if (!isset($attempts[$email])) {
-        return true;
+    // Check if still locked
+    if ($attempts['locked_until'] && strtotime($attempts['locked_until']) > time()) {
+        return false;
     }
 
-    $userAttempts = $attempts[$email];
-
-    // Clean old attempts
-    if (time() - $userAttempts['timestamp'] > LOGIN_LOCKOUT_TIME) {
-        unset($attempts[$email]);
-        file_put_contents(LOGIN_ATTEMPTS_FILE, json_encode($attempts, JSON_PRETTY_PRINT));
-        return true;
-    }
-
-    return $userAttempts['count'] < MAX_LOGIN_ATTEMPTS;
+    // Check if too many attempts
+    return $attempts['attempt_count'] < MAX_LOGIN_ATTEMPTS;
 }
 
-// Helper function to record login attempt
+/**
+ * Record login attempt
+ */
 function recordLoginAttempt($email, $success) {
-    $attempts = [];
-    if (file_exists(LOGIN_ATTEMPTS_FILE)) {
-        $attempts = json_decode(file_get_contents(LOGIN_ATTEMPTS_FILE), true) ?: [];
-    }
+    $pdo = getDBConnection();
 
     if ($success) {
-        unset($attempts[$email]);
+        // Clear login attempts on successful login
+        $stmt = $pdo->prepare("DELETE FROM login_attempts WHERE email = :email");
+        $stmt->execute([':email' => $email]);
     } else {
-        if (!isset($attempts[$email])) {
-            $attempts[$email] = ['count' => 0, 'timestamp' => time()];
-        }
-        $attempts[$email]['count']++;
-        $attempts[$email]['timestamp'] = time();
+        // Increment failed attempts
+        $stmt = $pdo->prepare("
+            INSERT INTO login_attempts (email, attempt_count, last_attempt_at, locked_until)
+            VALUES (:email, 1, NOW(), NULL)
+            ON DUPLICATE KEY UPDATE
+                attempt_count = attempt_count + 1,
+                last_attempt_at = NOW(),
+                locked_until = IF(attempt_count + 1 >= :max_attempts,
+                    DATE_ADD(NOW(), INTERVAL :lockout_seconds SECOND),
+                    NULL)
+        ");
+        $stmt->execute([
+            ':email' => $email,
+            ':max_attempts' => MAX_LOGIN_ATTEMPTS,
+            ':lockout_seconds' => LOGIN_LOCKOUT_TIME
+        ]);
     }
-
-    file_put_contents(LOGIN_ATTEMPTS_FILE, json_encode($attempts, JSON_PRETTY_PRINT));
 }
 
-// Helper function to start secure session
+/**
+ * Start secure session
+ */
 function startSecureSession() {
     if (session_status() === PHP_SESSION_NONE) {
         session_start();
     }
 }
 
-// Helper function to verify CSRF token
+/**
+ * Verify CSRF token
+ */
 function verifyCsrfToken($token) {
     startSecureSession();
     return isset($_SESSION['csrf_token']) && hash_equals($_SESSION['csrf_token'], $token);
 }
 
 /**
- * REGISTER - Step 1: Send verification code
+ * Generate CSRF token
  */
+function generateCsrfToken() {
+    startSecureSession();
+    if (empty($_SESSION['csrf_token'])) {
+        $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+    }
+    return $_SESSION['csrf_token'];
+}
+
+// ============================================================================
+// REGISTER - Step 1: Send verification code
+// ============================================================================
+
 if ($action === 'register') {
     // Verify CSRF token
     if (!isset($input['csrf_token']) || !verifyCsrfToken($input['csrf_token'])) {
@@ -127,7 +153,7 @@ if ($action === 'register') {
     }
 
     // Check if user already exists
-    if (getUserByEmail($email) !== null) {
+    if (getUserByEmail($email) !== false) {
         echo json_encode(['error' => 'An account with this email already exists']);
         exit;
     }
@@ -164,9 +190,10 @@ if ($action === 'register') {
     exit;
 }
 
-/**
- * VERIFY - Step 2: Verify code and complete registration
- */
+// ============================================================================
+// VERIFY - Step 2: Verify code and complete registration
+// ============================================================================
+
 if ($action === 'verify') {
     // Verify CSRF token
     if (!isset($input['csrf_token']) || !verifyCsrfToken($input['csrf_token'])) {
@@ -199,53 +226,56 @@ if ($action === 'verify') {
         exit;
     }
 
-    // Create user account
-    $users = getUsers();
+    try {
+        $pdo = getDBConnection();
 
-    $userHash = md5($email);
-    $newUser = [
-        'email' => $email,
-        'password_hash' => $pendingData['password_hash'],
-        'user_hash' => $userHash,
-        'email_verified' => true,
-        'created_at' => time()
-    ];
+        // Create user account
+        $userHash = md5($email);
+        $stmt = $pdo->prepare("
+            INSERT INTO users (email, password_hash, user_hash, email_verified, created_at)
+            VALUES (:email, :password_hash, :user_hash, TRUE, NOW())
+        ");
 
-    $users[] = $newUser;
-    saveUsers($users);
+        $stmt->execute([
+            ':email' => $email,
+            ':password_hash' => $pendingData['password_hash'],
+            ':user_hash' => $userHash
+        ]);
 
-    // Create user data file
-    $userDataFile = __DIR__ . '/../data/user_' . $userHash . '.json';
-    $initialData = [
-        'habits' => [],
-        'habitData' => (object)[],
-        'lastModified' => time()
-    ];
-    file_put_contents($userDataFile, json_encode($initialData, JSON_PRETTY_PRINT));
+        $userId = $pdo->lastInsertId();
 
-    // Remove pending registration
-    removePendingRegistration($email);
+        // Remove pending registration
+        removePendingRegistration($email);
 
-    // Create session
-    startSecureSession();
-    $_SESSION['user_hash'] = $userHash;
-    $_SESSION['email'] = $email;
-    $_SESSION['last_activity'] = time();
+        // Create session
+        startSecureSession();
+        $_SESSION['user_hash'] = $userHash;
+        $_SESSION['user_id'] = $userId;
+        $_SESSION['email'] = $email;
+        $_SESSION['last_activity'] = time();
 
-    echo json_encode([
-        'success' => true,
-        'message' => 'Account created successfully',
-        'user' => [
-            'email' => $email,
-            'user_hash' => $userHash
-        ]
-    ]);
+        echo json_encode([
+            'success' => true,
+            'message' => 'Account created successfully',
+            'user' => [
+                'email' => $email,
+                'user_hash' => $userHash
+            ]
+        ]);
+
+    } catch (PDOException $e) {
+        error_log('Registration error: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to create account. Please try again.']);
+    }
+
     exit;
 }
 
-/**
- * RESEND - Resend verification code
- */
+// ============================================================================
+// RESEND - Resend verification code
+// ============================================================================
+
 if ($action === 'resend') {
     // Verify CSRF token
     if (!isset($input['csrf_token']) || !verifyCsrfToken($input['csrf_token'])) {
@@ -298,9 +328,10 @@ if ($action === 'resend') {
     exit;
 }
 
-/**
- * LOGIN
- */
+// ============================================================================
+// LOGIN
+// ============================================================================
+
 if ($action === 'login') {
     // Verify CSRF token
     if (!isset($input['csrf_token']) || !verifyCsrfToken($input['csrf_token'])) {
@@ -339,6 +370,7 @@ if ($action === 'login') {
     // Create session
     startSecureSession();
     $_SESSION['user_hash'] = $user['user_hash'];
+    $_SESSION['user_id'] = $user['id'];
     $_SESSION['email'] = $user['email'];
     $_SESSION['last_activity'] = time();
 
@@ -352,9 +384,10 @@ if ($action === 'login') {
     exit;
 }
 
-/**
- * LOGOUT
- */
+// ============================================================================
+// LOGOUT
+// ============================================================================
+
 if ($action === 'logout') {
     session_start();
     session_destroy();
@@ -363,9 +396,10 @@ if ($action === 'logout') {
     exit;
 }
 
-/**
- * CHECK SESSION
- */
+// ============================================================================
+// CHECK SESSION
+// ============================================================================
+
 if ($action === 'check') {
     startSecureSession();
 
@@ -398,9 +432,10 @@ if ($action === 'check') {
     exit;
 }
 
-/**
- * FORGOT PASSWORD - Step 1: Send reset code
- */
+// ============================================================================
+// FORGOT PASSWORD - Step 1: Send reset code
+// ============================================================================
+
 if ($action === 'forgot-password') {
     // Verify CSRF token
     if (!isset($input['csrf_token']) || !verifyCsrfToken($input['csrf_token'])) {
@@ -433,7 +468,7 @@ if ($action === 'forgot-password') {
 
     // Always show success message to prevent email enumeration attacks
     // Only send email if user actually exists
-    if ($user !== null) {
+    if ($user !== false) {
         // Generate reset code
         $resetCode = generateVerificationCode();
 
@@ -457,9 +492,10 @@ if ($action === 'forgot-password') {
     exit;
 }
 
-/**
- * VERIFY RESET CODE - Step 2: Verify the reset code
- */
+// ============================================================================
+// VERIFY RESET CODE - Step 2: Verify the reset code
+// ============================================================================
+
 if ($action === 'verify-reset-code') {
     // Verify CSRF token
     if (!isset($input['csrf_token']) || !verifyCsrfToken($input['csrf_token'])) {
@@ -498,9 +534,10 @@ if ($action === 'verify-reset-code') {
     exit;
 }
 
-/**
- * RESET PASSWORD - Step 3: Set new password
- */
+// ============================================================================
+// RESET PASSWORD - Step 3: Set new password
+// ============================================================================
+
 if ($action === 'reset-password') {
     // Verify CSRF token
     if (!isset($input['csrf_token']) || !verifyCsrfToken($input['csrf_token'])) {
@@ -540,29 +577,41 @@ if ($action === 'reset-password') {
         exit;
     }
 
-    // Update password
-    $users = getUsers();
-    foreach ($users as $key => $u) {
-        if ($u['email'] === $email) {
-            $users[$key]['password_hash'] = password_hash($newPassword, PASSWORD_DEFAULT);
-            break;
-        }
+    try {
+        // Update password
+        $pdo = getDBConnection();
+        $stmt = $pdo->prepare("
+            UPDATE users
+            SET password_hash = :password_hash
+            WHERE email = :email
+        ");
+
+        $stmt->execute([
+            ':password_hash' => password_hash($newPassword, PASSWORD_DEFAULT),
+            ':email' => $email
+        ]);
+
+        // Clear all verification codes for this email
+        clearVerificationCodes($email);
+
+        echo json_encode([
+            'success' => true,
+            'message' => 'Password has been reset successfully'
+        ]);
+
+    } catch (PDOException $e) {
+        error_log('Password reset error: ' . $e->getMessage());
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to reset password. Please try again.']);
     }
-    saveUsers($users);
 
-    // Clear all verification codes for this email
-    clearVerificationCodes($email);
-
-    echo json_encode([
-        'success' => true,
-        'message' => 'Password has been reset successfully'
-    ]);
     exit;
 }
 
-/**
- * RESEND RESET CODE
- */
+// ============================================================================
+// RESEND RESET CODE
+// ============================================================================
+
 if ($action === 'resend-reset-code') {
     // Verify CSRF token
     if (!isset($input['csrf_token']) || !verifyCsrfToken($input['csrf_token'])) {
@@ -590,7 +639,7 @@ if ($action === 'resend-reset-code') {
     // Check if user exists (but don't reveal if they don't)
     $user = getUserByEmail($email);
 
-    if ($user !== null) {
+    if ($user !== false) {
         // Generate new reset code
         $resetCode = generateVerificationCode();
 
@@ -612,9 +661,10 @@ if ($action === 'resend-reset-code') {
     exit;
 }
 
-/**
- * GET CSRF TOKEN
- */
+// ============================================================================
+// GET CSRF TOKEN
+// ============================================================================
+
 if ($action === 'csrf') {
     $token = generateCsrfToken();
     echo json_encode(['csrf_token' => $token]);

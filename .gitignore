@@ -35,9 +35,16 @@ data/backup_*/
 # Email configuration (contains API keys!)
 app/email_config.php
 
-# MySQL backups (may contain sensitive data)
+# Local configuration overrides
+*.local.php
+
+# MySQL backups and schema (may contain sensitive data)
 *.sql.backup
 backup_*.sql
+app/schema.sql
+
+# Test files (for local debugging only)
+app/test_*.php
 
 # Database configuration with credentials
 app/.htaccess

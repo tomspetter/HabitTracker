@@ -1,8 +1,8 @@
 <?php
 /**
- * Verification Code Helpers
+ * Verification Code Helpers (MySQL Version)
  *
- * Functions for generating and validating verification codes
+ * Functions for generating and validating verification codes using MySQL database
  */
 
 /**
@@ -19,30 +19,43 @@ function generateVerificationCode() {
  *
  * @param string $email User's email
  * @param string $code Verification code
- * @param string $type Type of code ('registration' or 'reset')
+ * @param string $type Type of code ('registration', 'password_reset', or 'reset_token')
  * @param int $expiryMinutes How long the code is valid (default 15)
  * @return bool Success
  */
 function storeVerificationCode($email, $code, $type = 'registration', $expiryMinutes = 15) {
-    $codesFile = __DIR__ . '/data/verification_codes.json';
+    try {
+        $pdo = getDBConnection();
 
-    // Load existing codes
-    $codes = [];
-    if (file_exists($codesFile)) {
-        $codesData = file_get_contents($codesFile);
-        $codes = json_decode($codesData, true) ?: [];
+        // Clear any existing codes of this type for this email
+        $stmt = $pdo->prepare("
+            DELETE FROM verification_codes
+            WHERE email = :email AND code_type = :type
+        ");
+        $stmt->execute([
+            ':email' => $email,
+            ':type' => $type
+        ]);
+
+        // Insert new code
+        $stmt = $pdo->prepare("
+            INSERT INTO verification_codes (email, code, code_type, created_at, expires_at)
+            VALUES (:email, :code, :type, NOW(), DATE_ADD(NOW(), INTERVAL :minutes MINUTE))
+        ");
+
+        $stmt->execute([
+            ':email' => $email,
+            ':code' => $code,
+            ':type' => $type,
+            ':minutes' => $expiryMinutes
+        ]);
+
+        return true;
+
+    } catch (PDOException $e) {
+        error_log('Error storing verification code: ' . $e->getMessage());
+        return false;
     }
-
-    // Create code entry
-    $codes[$email] = [
-        'code' => $code,
-        'type' => $type,
-        'expires' => time() + ($expiryMinutes * 60),
-        'attempts' => 0
-    ];
-
-    // Save codes
-    return file_put_contents($codesFile, json_encode($codes, JSON_PRETTY_PRINT)) !== false;
 }
 
 /**
@@ -54,55 +67,50 @@ function storeVerificationCode($email, $code, $type = 'registration', $expiryMin
  * @return array ['valid' => bool, 'error' => string|null]
  */
 function verifyCode($email, $code, $type = 'registration') {
-    $codesFile = __DIR__ . '/data/verification_codes.json';
+    try {
+        $pdo = getDBConnection();
 
-    if (!file_exists($codesFile)) {
-        return ['valid' => false, 'error' => 'No verification code found'];
+        // Clean up expired codes first
+        $pdo->exec("DELETE FROM verification_codes WHERE expires_at < NOW()");
+
+        // Find matching code that hasn't expired (using MySQL NOW() for consistent timezone)
+        $stmt = $pdo->prepare("
+            SELECT id, code, expires_at
+            FROM verification_codes
+            WHERE email = :email
+              AND code_type = :type
+              AND used = FALSE
+              AND expires_at > NOW()
+            ORDER BY created_at DESC
+            LIMIT 1
+        ");
+
+        $stmt->execute([
+            ':email' => $email,
+            ':type' => $type
+        ]);
+
+        $codeData = $stmt->fetch();
+
+        if (!$codeData) {
+            return ['valid' => false, 'error' => 'Verification code has expired or not found'];
+        }
+
+        // Verify the code (constant-time comparison for security)
+        if (!hash_equals($codeData['code'], $code)) {
+            return ['valid' => false, 'error' => 'Invalid verification code'];
+        }
+
+        // Mark code as used
+        $pdo->prepare("UPDATE verification_codes SET used = TRUE WHERE id = :id")
+            ->execute([':id' => $codeData['id']]);
+
+        return ['valid' => true, 'error' => null];
+
+    } catch (PDOException $e) {
+        error_log('Error verifying code: ' . $e->getMessage());
+        return ['valid' => false, 'error' => 'An error occurred. Please try again.'];
     }
-
-    $codesData = file_get_contents($codesFile);
-    $codes = json_decode($codesData, true) ?: [];
-
-    // Check if code exists for email
-    if (!isset($codes[$email])) {
-        return ['valid' => false, 'error' => 'No verification code found for this email'];
-    }
-
-    $storedData = $codes[$email];
-
-    // Check if code type matches
-    if ($storedData['type'] !== $type) {
-        return ['valid' => false, 'error' => 'Invalid code type'];
-    }
-
-    // Check if code has expired
-    if (time() > $storedData['expires']) {
-        // Clean up expired code
-        unset($codes[$email]);
-        file_put_contents($codesFile, json_encode($codes, JSON_PRETTY_PRINT));
-        return ['valid' => false, 'error' => 'Verification code has expired'];
-    }
-
-    // Check attempts (max 5 attempts)
-    if ($storedData['attempts'] >= 5) {
-        return ['valid' => false, 'error' => 'Too many failed attempts. Please request a new code'];
-    }
-
-    // Verify the code
-    if ($storedData['code'] !== $code) {
-        // Increment attempts
-        $codes[$email]['attempts']++;
-        file_put_contents($codesFile, json_encode($codes, JSON_PRETTY_PRINT));
-
-        $attemptsLeft = 5 - $codes[$email]['attempts'];
-        return ['valid' => false, 'error' => "Invalid code. $attemptsLeft attempts remaining"];
-    }
-
-    // Code is valid - clean it up
-    unset($codes[$email]);
-    file_put_contents($codesFile, json_encode($codes, JSON_PRETTY_PRINT));
-
-    return ['valid' => true, 'error' => null];
 }
 
 /**
@@ -112,28 +120,40 @@ function verifyCode($email, $code, $type = 'registration') {
  * @return array ['canResend' => bool, 'waitSeconds' => int]
  */
 function canResendCode($email) {
-    $codesFile = __DIR__ . '/data/verification_codes.json';
+    try {
+        $pdo = getDBConnection();
 
-    if (!file_exists($codesFile)) {
+        // Find most recent code for this email
+        $stmt = $pdo->prepare("
+            SELECT created_at
+            FROM verification_codes
+            WHERE email = :email
+            ORDER BY created_at DESC
+            LIMIT 1
+        ");
+
+        $stmt->execute([':email' => $email]);
+        $codeData = $stmt->fetch();
+
+        if (!$codeData) {
+            return ['canResend' => true, 'waitSeconds' => 0];
+        }
+
+        // Require 60 seconds between resend requests
+        $timeSinceCreation = time() - strtotime($codeData['created_at']);
+        $waitTime = 60 - $timeSinceCreation;
+
+        if ($waitTime > 0) {
+            return ['canResend' => false, 'waitSeconds' => $waitTime];
+        }
+
+        return ['canResend' => true, 'waitSeconds' => 0];
+
+    } catch (PDOException $e) {
+        error_log('Error checking resend eligibility: ' . $e->getMessage());
+        // Allow resend on error to not block users
         return ['canResend' => true, 'waitSeconds' => 0];
     }
-
-    $codesData = file_get_contents($codesFile);
-    $codes = json_decode($codesData, true) ?: [];
-
-    if (!isset($codes[$email])) {
-        return ['canResend' => true, 'waitSeconds' => 0];
-    }
-
-    // Require 60 seconds between resend requests
-    $timeSinceCreation = time() - ($codes[$email]['expires'] - (15 * 60));
-    $waitTime = 60 - $timeSinceCreation;
-
-    if ($waitTime > 0) {
-        return ['canResend' => false, 'waitSeconds' => $waitTime];
-    }
-
-    return ['canResend' => true, 'waitSeconds' => 0];
 }
 
 /**
@@ -143,16 +163,29 @@ function canResendCode($email) {
  * @return array|null Registration data or null
  */
 function getPendingRegistration($email) {
-    $pendingFile = __DIR__ . '/data/pending_registrations.json';
+    try {
+        $pdo = getDBConnection();
 
-    if (!file_exists($pendingFile)) {
+        // Clean up expired registrations first
+        $pdo->exec("DELETE FROM pending_registrations WHERE expires_at < NOW()");
+
+        $stmt = $pdo->prepare("
+            SELECT email, password_hash, created_at, expires_at
+            FROM pending_registrations
+            WHERE email = :email
+              AND expires_at > NOW()
+            LIMIT 1
+        ");
+
+        $stmt->execute([':email' => $email]);
+        $data = $stmt->fetch();
+
+        return $data ?: null;
+
+    } catch (PDOException $e) {
+        error_log('Error getting pending registration: ' . $e->getMessage());
         return null;
     }
-
-    $pendingData = file_get_contents($pendingFile);
-    $pending = json_decode($pendingData, true) ?: [];
-
-    return $pending[$email] ?? null;
 }
 
 /**
@@ -160,32 +193,35 @@ function getPendingRegistration($email) {
  *
  * @param string $email User's email
  * @param string $passwordHash Hashed password
+ * @param int $expiryMinutes How long the registration is valid (default 30)
  * @return bool Success
  */
-function storePendingRegistration($email, $passwordHash) {
-    $pendingFile = __DIR__ . '/data/pending_registrations.json';
+function storePendingRegistration($email, $passwordHash, $expiryMinutes = 30) {
+    try {
+        $pdo = getDBConnection();
 
-    // Load existing pending registrations
-    $pending = [];
-    if (file_exists($pendingFile)) {
-        $pendingData = file_get_contents($pendingFile);
-        $pending = json_decode($pendingData, true) ?: [];
+        // Delete any existing pending registration for this email
+        $stmt = $pdo->prepare("DELETE FROM pending_registrations WHERE email = :email");
+        $stmt->execute([':email' => $email]);
+
+        // Insert new pending registration
+        $stmt = $pdo->prepare("
+            INSERT INTO pending_registrations (email, password_hash, created_at, expires_at)
+            VALUES (:email, :password_hash, NOW(), DATE_ADD(NOW(), INTERVAL :minutes MINUTE))
+        ");
+
+        $stmt->execute([
+            ':email' => $email,
+            ':password_hash' => $passwordHash,
+            ':minutes' => $expiryMinutes
+        ]);
+
+        return true;
+
+    } catch (PDOException $e) {
+        error_log('Error storing pending registration: ' . $e->getMessage());
+        return false;
     }
-
-    // Store registration data
-    $pending[$email] = [
-        'password_hash' => $passwordHash,
-        'created' => time()
-    ];
-
-    // Clean up old pending registrations (older than 24 hours)
-    foreach ($pending as $pendingEmail => $data) {
-        if (time() - $data['created'] > 86400) {
-            unset($pending[$pendingEmail]);
-        }
-    }
-
-    return file_put_contents($pendingFile, json_encode($pending, JSON_PRETTY_PRINT)) !== false;
 }
 
 /**
@@ -195,18 +231,18 @@ function storePendingRegistration($email, $passwordHash) {
  * @return bool Success
  */
 function removePendingRegistration($email) {
-    $pendingFile = __DIR__ . '/data/pending_registrations.json';
+    try {
+        $pdo = getDBConnection();
 
-    if (!file_exists($pendingFile)) {
+        $stmt = $pdo->prepare("DELETE FROM pending_registrations WHERE email = :email");
+        $stmt->execute([':email' => $email]);
+
         return true;
+
+    } catch (PDOException $e) {
+        error_log('Error removing pending registration: ' . $e->getMessage());
+        return false;
     }
-
-    $pendingData = file_get_contents($pendingFile);
-    $pending = json_decode($pendingData, true) ?: [];
-
-    unset($pending[$email]);
-
-    return file_put_contents($pendingFile, json_encode($pending, JSON_PRETTY_PRINT)) !== false;
 }
 
 /**
@@ -216,16 +252,16 @@ function removePendingRegistration($email) {
  * @return bool Success
  */
 function clearVerificationCodes($email) {
-    $codesFile = __DIR__ . '/data/verification_codes.json';
+    try {
+        $pdo = getDBConnection();
 
-    if (!file_exists($codesFile)) {
+        $stmt = $pdo->prepare("DELETE FROM verification_codes WHERE email = :email");
+        $stmt->execute([':email' => $email]);
+
         return true;
+
+    } catch (PDOException $e) {
+        error_log('Error clearing verification codes: ' . $e->getMessage());
+        return false;
     }
-
-    $codesData = file_get_contents($codesFile);
-    $codes = json_decode($codesData, true) ?: [];
-
-    unset($codes[$email]);
-
-    return file_put_contents($codesFile, json_encode($codes, JSON_PRETTY_PRINT)) !== false;
 }
