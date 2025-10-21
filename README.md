@@ -34,8 +34,10 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
 - **Account Deletion**: Permanently delete your account and all data
 
 ### Security
+- **AES-256 Encryption**: Habit names encrypted server-side with user-specific keys
 - **Email Verification**: Required email verification for new account registration
 - **Password Reset Flow**: Secure 3-step password recovery with verification codes
+- **Bcrypt Password Hashing**: Industry-standard password encryption (never stored in plain text)
 - **CSRF Protection**: Protected against cross-site request forgery attacks
 - **Rate Limiting**: Login attempt limiting to prevent brute force attacks (5 attempts, 15-min lockout)
 - **Code Expiration**: Verification codes expire after 15 minutes
@@ -270,19 +272,32 @@ See [SECURITY.md](SECURITY.md) for complete security documentation.
 
 ✅ **Implemented Security Measures:**
 
+### Data Encryption
+- **AES-256-CBC encryption** for habit names (server-side)
+- **User-specific encryption keys** derived from master key + user ID
+- **Unique IVs** (Initialization Vectors) for each encrypted value
+- **Environment variable** storage for master encryption key (never in code)
+- Even if database is breached, habit names remain encrypted and unreadable
+
+### Authentication & Passwords
 - Email verification required for new accounts (6-digit codes)
 - Secure password reset flow with verification codes
-- Bcrypt password hashing
+- **Bcrypt password hashing** - passwords never stored in plain text
 - Server-side session management
+- Session timeout (1 hour with automatic renewal)
+
+### Attack Prevention
 - CSRF token protection on all state-changing requests
 - Login rate limiting (5 attempts, 15-minute lockout)
 - Verification code rate limiting (60-second resend cooldown)
-- Session timeout (1 hour with automatic renewal)
 - Code expiration (15 minutes for verification, 5 minutes for reset tokens)
 - Maximum attempt limiting (5 attempts per verification code)
 - Email enumeration prevention (password reset doesn't reveal if user exists)
+
+### Data Protection
 - Protected data directory (`.htaccess` blocks direct access)
 - Security headers (X-Frame-Options, XSS Protection, etc.)
+- Server-side storage only (no localStorage for sensitive data)
 
 See [SECURITY.md](SECURITY.md) for full security details.
 

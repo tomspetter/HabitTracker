@@ -141,10 +141,11 @@
       <div class="space-y-8">
         <!-- Philosophy -->
         <section class="bg-[#161b22] border border-[#30363d] rounded-lg p-8">
-          <h2 class="text-2xl font-bold text-white mb-4">Our Philosophy</h2>
+          <h2 class="text-2xl font-bold text-white mb-4">My Philosophy</h2>
           <p class="text-gray-300 mb-4">
             HabitDot was created with a simple belief: habit tracking should be
-            beautiful, minimal, and respect your privacy.
+            beautiful, minimal, respect your privacy, and most of all, not come
+            with a subscription!
           </p>
           <p class="text-gray-300">
             Inspired by GitHub's contribution graph, HabitDot provides a
@@ -187,8 +188,16 @@
           </p>
           <ul class="list-disc list-inside text-gray-300 space-y-2">
             <li>
+              <strong class="text-white">AES-256 encryption</strong> - Habit
+              names are encrypted server-side before storage
+            </li>
+            <li>
               <strong class="text-white">Bcrypt password hashing</strong> - Your
               password is never stored in plain text
+            </li>
+            <li>
+              <strong class="text-white">User-specific encryption keys</strong>
+              - Each user's data uses unique encryption keys
             </li>
             <li>
               <strong class="text-white">Server-side sessions</strong> - Secure
@@ -229,7 +238,7 @@
               <h3 class="text-lg font-semibold text-white mb-2">Backend</h3>
               <ul class="text-gray-300 space-y-1">
                 <li>PHP 8.3+</li>
-                <li>JSON file storage</li>
+                <li>MySQL database with AES-256 encryption</li>
                 <li>Session-based auth</li>
               </ul>
             </div>
@@ -241,9 +250,9 @@
           <h2 class="text-2xl font-bold text-white mb-4">Creator</h2>
           <p class="text-gray-300 mb-4">
             HabitDot is created and maintained by
-            <strong class="text-white">Tom Spetter</strong>, a developer
-            passionate about building simple, useful tools that respect user
-            privacy.
+            <strong class="text-white">Tom Spetter</strong>, a
+            designer/developer passionate about building simple, useful tools
+            that respect user privacy.
           </p>
           <div class="flex flex-col sm:flex-row gap-4">
             <a
