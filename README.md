@@ -4,6 +4,18 @@
 
 A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 6 daily habits with color-coded circular dots inspired by GitHub's contribution graph.
 
+## Live Demo
+
+**Try it now at [habitdot.com](https://habitdot.com)** - Free to sign up and use!
+
+You can either:
+- **Sign up and use it** - Create a free account and start tracking your habits
+- **View as a demo** - See the app in action before deciding to fork and self-host
+
+No installation needed to try it out!
+
+---
+
 > **Note:** Now with secure authentication, statistics, and account management!
 
 ![Habit Tracker Preview](images/preview.png)
