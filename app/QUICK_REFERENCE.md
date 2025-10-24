@@ -1,4 +1,4 @@
-# HabitTracker MySQL + Encryption - Quick Reference
+# ChainOfDots MySQL + Encryption - Quick Reference
 
 ## 🔑 Generate Encryption Key
 
