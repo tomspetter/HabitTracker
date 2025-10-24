@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS pending_registrations (
 CREATE TABLE IF NOT EXISTS verification_codes (
     id INT AUTO_INCREMENT PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
-    code VARCHAR(10) NOT NULL,
+    code VARCHAR(100) NOT NULL,  -- 100 chars to support both 6-digit codes and 64-char reset tokens
     code_type ENUM('registration', 'password_reset', 'reset_token') NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     expires_at TIMESTAMP NOT NULL,

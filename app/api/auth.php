@@ -524,7 +524,14 @@ if ($action === 'verify-reset-code') {
     $resetToken = bin2hex(random_bytes(32));
 
     // Store the reset token temporarily (reuse verification code storage with short expiry)
-    storeVerificationCode($email, $resetToken, 'reset_token', 5); // 5 minute window to set new password
+    $stored = storeVerificationCode($email, $resetToken, 'reset_token', 15); // 15 minute window to set new password
+
+    if (!$stored) {
+        error_log("Failed to store reset_token for $email");
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to generate reset token. Please try again.']);
+        exit;
+    }
 
     echo json_encode([
         'success' => true,
@@ -565,6 +572,8 @@ if ($action === 'reset-password') {
     $verification = verifyCode($email, $resetToken, 'reset_token');
 
     if (!$verification['valid']) {
+        // Log the specific error for debugging
+        error_log("Password reset failed for $email: " . ($verification['error'] ?? 'Unknown error'));
         echo json_encode(['error' => 'Invalid or expired reset token. Please start over.']);
         exit;
     }
