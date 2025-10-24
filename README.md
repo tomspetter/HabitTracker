@@ -1,4 +1,4 @@
-# HabitDot - Simple Habit Tracking
+# ChainOfDots - Simple Habit Tracking
 
 **Version: 1.0.0**
 
@@ -6,7 +6,7 @@ A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 
 
 ## Live Demo
 
-**Try it now at [habitdot.com](https://habitdot.com)** - Free to sign up and use!
+**Try it now at [chainofdots.com](https://chainofdots.com)** - Free to sign up and use!
 
 You can either:
 - **Sign up and use it** - Create a free account and start tracking your habits
@@ -25,7 +25,7 @@ No installation needed to try it out!
 ### Core Tracking
 - **Year-at-a-Glance View**: 365-day calendar grid showing your entire year
 - **6 Color-Coded Habits**: Track up to 6 different habits with rainbow colors (red, orange, yellow, green, blue, purple)
-- **Circular Dots**: Clean, minimal circular indicators for each day (matching the "HabitDot" brand)
+- **Circular Dots**: Clean, minimal circular indicators for each day (matching the "ChainOfDots" brand)
 - **Streak Tracking**: Current streak and best streak for each habit
 - **Quick Daily Tracking**: Check off today's habits with one click
 - **Auto-Save**: Changes are automatically saved to the server
@@ -424,7 +424,7 @@ See [SECURITY.md](SECURITY.md) for full security details.
 - **Marketing Site**
   - Professional landing page with feature highlights
   - About, Contact, and documentation pages
-  - HabitDot branding and logo
+  - ChainOfDots branding and logo
 - **Design & UX**
   - Responsive navigation (desktop + mobile hamburger menu)
   - Mobile responsive design
@@ -477,7 +477,7 @@ HabitTracker/
 │   │   └── .htaccess   # Security headers
 │   └── QUICK_REFERENCE.md  # Quick setup guide
 ├── images/
-│   ├── logo.svg        # HabitDot logo
+│   ├── logo.svg        # ChainOfDots logo
 │   └── preview.png     # Screenshot for marketing site
 ├── README.md           # This file
 └── SECURITY.md         # Security documentation

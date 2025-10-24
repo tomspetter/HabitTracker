@@ -6,6 +6,6 @@ SetEnv HABIT_ENCRYPTION_KEY "your_generated_key_here"
 
 # Optional: Override database credentials via environment variables
 # SetEnv DB_HOST "localhost"
-# SetEnv DB_NAME "habitdondb"
-# SetEnv DB_USER "habitdotusr"
+# SetEnv DB_NAME "chainofdots_db"
+# SetEnv DB_USER "chainofdots_usr"
 # SetEnv DB_PASS "your_password"
