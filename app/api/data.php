@@ -13,6 +13,14 @@ require_once __DIR__ . '/../config.php';
 
 header('Content-Type: application/json');
 
+// CSRF Token validation function
+function validateCSRFToken($token) {
+    if (!isset($_SESSION['csrf_token'])) {
+        return false;
+    }
+    return hash_equals($_SESSION['csrf_token'], $token);
+}
+
 // Require authentication
 requireLogin();
 

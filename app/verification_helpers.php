@@ -53,7 +53,9 @@ function storeVerificationCode($email, $code, $type = 'registration', $expiryMin
         return true;
 
     } catch (PDOException $e) {
-        error_log('Error storing verification code: ' . $e->getMessage());
+        error_log('Error storing verification code (type: ' . $type . ', email: ' . $email . '): ' . $e->getMessage());
+        error_log('PDO Error Code: ' . $e->getCode());
+        error_log('Stack trace: ' . $e->getTraceAsString());
         return false;
     }
 }
