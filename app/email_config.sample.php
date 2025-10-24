@@ -15,15 +15,15 @@ define('BREVO_API_URL', 'https://api.brevo.com/v3/smtp/email');
 
 // Sender Information
 define('EMAIL_FROM_ADDRESS', 'noreply@yourdomain.com'); // Change to your verified sender email
-define('EMAIL_FROM_NAME', 'HabitDot');
+define('EMAIL_FROM_NAME', 'ChainOfDots');
 
 // Application URLs (for email links)
 define('APP_URL', 'https://yourdomain.com'); // Change to your production URL
-define('APP_NAME', 'HabitDot');
+define('APP_NAME', 'ChainOfDots');
 
 // Email Templates
-define('EMAIL_VERIFICATION_SUBJECT', 'Verify your HabitDot email address');
-define('EMAIL_PASSWORD_RESET_SUBJECT', 'Reset your HabitDot password');
+define('EMAIL_VERIFICATION_SUBJECT', 'Verify your ChainOfDots email address');
+define('EMAIL_PASSWORD_RESET_SUBJECT', 'Reset your ChainOfDots password');
 
 // Token expiration times (in seconds)
 define('EMAIL_VERIFICATION_EXPIRY', 86400); // 24 hours
