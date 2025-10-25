@@ -126,10 +126,10 @@ function sendVerificationCodeEmail($email, $verificationCode) {
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #238636; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+        .header { background-color: #ff6b35; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
         .content { background-color: #f6f8fa; padding: 30px; border-radius: 0 0 5px 5px; text-align: center; }
-        .code-box { background-color: #white; border: 2px dashed #238636; padding: 20px; margin: 30px 0; border-radius: 8px; }
-        .code { font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #238636; font-family: "Courier New", monospace; }
+        .code-box { background-color: #white; border: 2px dashed #ff6b35; padding: 20px; margin: 30px 0; border-radius: 8px; }
+        .code { font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #ff6b35; font-family: "Courier New", monospace; }
         .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
         .warning { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 20px 0; text-align: left; }
     </style>
@@ -185,10 +185,10 @@ function sendPasswordResetEmail($email, $resetCode) {
     <style>
         body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
         .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-        .header { background-color: #238636; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
+        .header { background-color: #ff6b35; color: white; padding: 20px; text-align: center; border-radius: 5px 5px 0 0; }
         .content { background-color: #f6f8fa; padding: 30px; border-radius: 0 0 5px 5px; text-align: center; }
-        .code-box { background-color: white; border: 2px dashed #238636; padding: 20px; margin: 30px 0; border-radius: 8px; }
-        .code { font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #238636; font-family: "Courier New", monospace; }
+        .code-box { background-color: white; border: 2px dashed #ff6b35; padding: 20px; margin: 30px 0; border-radius: 8px; }
+        .code { font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #ff6b35; font-family: "Courier New", monospace; }
         .warning { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 12px; margin: 20px 0; text-align: left; }
         .footer { text-align: center; margin-top: 20px; color: #666; font-size: 12px; }
     </style>
