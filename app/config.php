@@ -5,7 +5,7 @@
  * Configuration file for the habit tracker with MySQL database support
  * and server-side encryption for habit names.
  *
- * @version 1.1.0
+ * @version 1.1.1
  *
  * ENCRYPTION SECURITY MODEL:
  * - Habit names are encrypted server-side using AES-256-CBC
@@ -26,7 +26,7 @@
 // APPLICATION VERSION
 // ============================================================================
 
-define('APP_VERSION', '1.1.0');
+define('APP_VERSION', '1.1.1');
 
 // ============================================================================
 // DATABASE CONFIGURATION

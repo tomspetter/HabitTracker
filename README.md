@@ -1,6 +1,6 @@
 # ChainOfDots - Simple Habit Tracking
 
-**Version: 1.1.0**
+**Version: 1.1.1**
 
 A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 6 daily habits with color-coded circular dots inspired by GitHub's contribution graph.
 

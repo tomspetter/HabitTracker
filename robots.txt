@@ -1,0 +1,16 @@
+# robots.txt for ChainOfDots
+# Free forever, privacy-focused habit tracker
+
+# Allow all search engines to crawl the site
+User-agent: *
+Allow: /
+
+# Sitemap location
+Sitemap: https://chainofdots.com/sitemap.xml
+
+# Disallow crawling of app internal pages (user data)
+Disallow: /app/api/
+Disallow: /app/data/
+
+# Optional: Crawl-delay to be polite (uncomment if needed)
+# Crawl-delay: 10

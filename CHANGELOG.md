@@ -5,6 +5,33 @@ All notable changes to ChainOfDots will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2025-01-11
+
+### Added - SEO Optimization
+- **Comprehensive Meta Tags** - All marketing pages optimized for search engines and social sharing
+  - Title tags highlighting "free forever", "privacy-focused", and "no ads"
+  - Meta descriptions emphasizing competitive advantages
+  - Open Graph tags for Facebook sharing
+  - Twitter Card tags for Twitter sharing
+  - Canonical URLs for each page
+  - Author and theme-color metadata
+- **sitemap.xml** - XML sitemap for search engine crawling
+  - All 6 pages listed with proper priority weighting
+  - Change frequency indicators
+  - Last modified dates
+- **robots.txt** - Search engine crawling directives
+  - Allow all search engines to crawl public pages
+  - Sitemap reference
+  - Disallow rules for sensitive API and data directories
+
+### Changed
+- **Marketing Page SEO** - Updated all marketing pages with SEO-optimized content
+  - `index.html` - Focus on year calendar view, free forever, privacy
+  - `about.html` - Emphasizes open source, AES-256 encryption, MIT license
+  - `contact.html` - Support and community focus
+  - `privacy.html` - GDPR/PIPEDA compliance highlighted
+  - `terms.html` - Free forever, data ownership emphasized
+
 ## [1.1.0] - 2025-01-11
 
 ### Added - GDPR/PIPEDA Compliance
@@ -144,5 +171,6 @@ ChainOfDots follows [Semantic Versioning](https://semver.org/):
 - **MINOR** version (1.x.0) - New features, backward compatible
 - **PATCH** version (1.1.x) - Bug fixes, backward compatible
 
+[1.1.1]: https://github.com/tomspetter/ChainOfDots/compare/v1.1.0...v1.1.1
 [1.1.0]: https://github.com/tomspetter/ChainOfDots/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/tomspetter/ChainOfDots/releases/tag/v1.0.0
