@@ -45,19 +45,22 @@ No installation needed to try it out!
 - **Data Import**: Restore from CSV or JSON files
 - **Account Deletion**: Permanently delete your account and all data
 
-### Security
+### Security & Privacy
 - **AES-256 Encryption**: Habit names encrypted server-side with user-specific keys
 - **Email Verification**: Required email verification for new account registration
 - **Password Reset Flow**: Secure 3-step password recovery with verification codes
 - **Bcrypt Password Hashing**: Industry-standard password encryption (never stored in plain text)
 - **CSRF Protection**: Protected against cross-site request forgery attacks
 - **Rate Limiting**: Login attempt limiting to prevent brute force attacks (5 attempts, 15-min lockout)
+- **Input Validation**: Length limits and sanitization on all user inputs (email, passwords, habit names)
+- **Security Headers**: X-Frame-Options, CSP, X-XSS-Protection, Permissions-Policy
 - **Code Expiration**: Verification codes expire after 15 minutes
 - **Attempt Limiting**: Maximum 5 attempts per verification code
 - **Session Management**: 1-hour session timeout with automatic renewal
 - **Server-Side Storage**: All data stored securely on the server (no localStorage)
 - **Protected Data Directory**: `.htaccess` blocks direct file access
 - **Email Enumeration Prevention**: Password reset doesn't reveal if email exists
+- **GDPR/PIPEDA Compliant**: Cookie consent, privacy policy, data export/deletion rights
 
 ### Design
 - **Clean Dark Theme**: GitHub-inspired dark interface for comfortable viewing
@@ -335,7 +338,7 @@ For extra security on public servers:
    - Implement encryption key rotation for long-term deployments
    - Requires re-encrypting all habit names with new key
 
-See [SECURITY.md](SECURITY.md) for complete security documentation.
+See [docs/SECURITY.md](docs/SECURITY.md) for complete security documentation.
 
 ## Usage
 
@@ -359,7 +362,7 @@ See [SECURITY.md](SECURITY.md) for complete security documentation.
 - **Import Data**: Restore from previously exported CSV or JSON files (auto-detected)
 - **Delete Account**: Permanently remove your account and all associated data
 
-## Security Features
+## Security & Privacy Features
 
 ✅ **Implemented Security Measures:**
 
@@ -376,21 +379,47 @@ See [SECURITY.md](SECURITY.md) for complete security documentation.
 - **Bcrypt password hashing** - passwords never stored in plain text
 - Server-side session management
 - Session timeout (1 hour with automatic renewal)
+- Password length validation (8-72 characters)
 
 ### Attack Prevention
 - CSRF token protection on all state-changing requests
 - Login rate limiting (5 attempts, 15-minute lockout)
 - Verification code rate limiting (60-second resend cooldown)
-- Code expiration (15 minutes for verification, 5 minutes for reset tokens)
+- Code expiration (15 minutes for verification, 15 minutes for reset tokens)
+- Code reuse prevention (marked as used after verification)
 - Maximum attempt limiting (5 attempts per verification code)
 - Email enumeration prevention (password reset doesn't reveal if user exists)
+- Input validation (email length, habit name length, color values, payload size limits)
+- SQL injection protection (prepared statements throughout)
+
+### Security Headers
+- **X-Frame-Options**: Prevents clickjacking attacks
+- **X-XSS-Protection**: Enables browser XSS filter
+- **X-Content-Type-Options**: Prevents MIME sniffing
+- **Referrer-Policy**: Controls referrer information leakage
+- **Content-Security-Policy**: Restricts resource loading to trusted sources
+- **Permissions-Policy**: Disables unnecessary browser features (geolocation, camera, etc.)
+- **Strict-Transport-Security**: HTTPS enforcement (when SSL enabled)
 
 ### Data Protection
 - Protected data directory (`.htaccess` blocks direct access)
-- Security headers (X-Frame-Options, XSS Protection, etc.)
+- Directory browsing disabled
+- Sensitive file access blocked (.env, .git, .log, .sql, .md files)
 - Server-side storage only (no localStorage for sensitive data)
+- Request payload size limits (1MB max)
+- Habit limits (10 max habits, 5000 max entries per save)
 
-See [SECURITY.md](SECURITY.md) for full security details.
+### GDPR/PIPEDA Compliance
+- **Cookie Consent Banner**: Opt-in/opt-out for analytics cookies
+- **Privacy Policy**: Comprehensive disclosure of data collection and encryption
+- **Terms of Service**: Legal terms for service usage
+- **Data Export**: Download all your data in CSV or JSON format
+- **Data Deletion**: Complete account and data removal (immediate from database, 14-day backup retention)
+- **User Rights**: Access, portability, erasure as required by GDPR
+- **Email Privacy**: Privacy policy links in all transactional emails
+- **Data Breach Response Plan**: 72-hour notification procedures (GDPR requirement)
+
+See [docs/SECURITY.md](docs/SECURITY.md) for full security details and [privacy.html](privacy.html) for privacy policy.
 
 ## Roadmap
 
@@ -459,28 +488,40 @@ See [SECURITY.md](SECURITY.md) for full security details.
 ## File Structure
 
 ```
-HabitTracker/
+ChainOfDots/
+├── .htaccess           # Root security headers (X-Frame-Options, CSP, etc.)
 ├── index.html          # Marketing landing page
 ├── about.html          # About page
 ├── contact.html        # Contact page
+├── privacy.html        # Privacy Policy (GDPR/PIPEDA compliance)
+├── terms.html          # Terms of Service
+├── app-init.js         # Cookie consent banner (renamed to avoid ad blockers)
 ├── app/                # Main application
+│   ├── .htaccess       # Environment variables (DB credentials, encryption key) - NOT IN GIT
 │   ├── index.html      # Habit tracker (React frontend)
 │   ├── config.php      # Configuration, encryption, and database functions
-│   ├── schema.sql      # MySQL database schema
+│   ├── schema.sql      # MySQL database schema (NOT IN GIT)
 │   ├── verification_helpers.php  # Email verification helpers
 │   ├── email_service.php         # Email sending service
-│   ├── email_config.php          # Email API configuration (not in git)
-│   ├── api/
-│   │   ├── auth.php    # Authentication endpoints (MySQL)
-│   │   ├── account.php # Account management endpoints (MySQL)
-│   │   ├── data.php    # Data storage/export/import endpoints (MySQL)
-│   │   └── .htaccess   # Security headers
-│   └── QUICK_REFERENCE.md  # Quick setup guide
+│   ├── email_config.php          # Email API configuration (NOT IN GIT)
+│   ├── email_config.sample.php   # Email configuration template
+│   └── api/
+│       ├── .htaccess   # API security headers
+│       ├── auth.php    # Authentication endpoints (MySQL)
+│       ├── account.php # Account management endpoints (MySQL)
+│       └── data.php    # Data storage/export/import endpoints (MySQL)
 ├── images/
 │   ├── logo.svg        # ChainOfDots logo
 │   └── preview.png     # Screenshot for marketing site
+├── docs/               # Documentation
+│   ├── README.md       # Documentation index
+│   ├── SECURITY.md     # Security documentation
+│   ├── COOKIE-CONSENT.md  # Cookie consent implementation guide
+│   ├── QUICK_REFERENCE.md  # Quick setup guide
+│   ├── .env.example    # Environment variables template
+│   └── .htaccess.example   # Apache environment config example
 ├── README.md           # This file
-└── SECURITY.md         # Security documentation
+└── .gitignore          # Excludes sensitive files (app/.htaccess, email_config.php, etc.)
 ```
 
 ## License
@@ -497,4 +538,4 @@ This is a personal project. Feel free to fork and modify for your own needs!
 
 ✅ **This version implements proper security practices** including password hashing, CSRF protection, and rate limiting. It is suitable for personal use on a local server or trusted hosting environment.
 
-⚠️ **For production deployment**: Always use HTTPS and ensure proper server configuration. See [SECURITY.md](SECURITY.md) for deployment recommendations.
+⚠️ **For production deployment**: Always use HTTPS and ensure proper server configuration. See [docs/SECURITY.md](docs/SECURITY.md) for deployment recommendations.
