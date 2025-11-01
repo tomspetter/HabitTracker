@@ -1,6 +1,6 @@
 # ChainOfDots - Simple Habit Tracking
 
-**Version: 1.0.0**
+**Version: 1.1.0**
 
 A beautiful, minimalist habit tracker with a year-at-a-glance view. Track up to 6 daily habits with color-coded circular dots inspired by GitHub's contribution graph.
 
@@ -423,7 +423,7 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full security details and [privacy.
 
 ## Roadmap
 
-### ✅ Completed Features (v1.0.0)
+### ✅ Completed Features (v1.1.0)
 
 - **Email-Based Authentication System**
   - Email verification with 6-digit codes (via Brevo API)
@@ -460,7 +460,7 @@ See [docs/SECURITY.md](docs/SECURITY.md) for full security details and [privacy.
   - GitHub-inspired dark theme
   - Accessible UI with ARIA labels
 
-### 💡 Future Enhancements (Post v1.0)
+### 💡 Future Enhancements (Post v1.1)
 
 - **Better Mobile UX**: Larger tap targets, swipe gestures, improved scrolling
 - **Dark/Light Theme Toggle**: User-selectable color schemes
