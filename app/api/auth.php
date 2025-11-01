@@ -146,9 +146,21 @@ if ($action === 'register') {
         exit;
     }
 
+    // Validate email length (database limit is 255)
+    if (strlen($email) > 255) {
+        echo json_encode(['error' => 'Email address is too long']);
+        exit;
+    }
+
     // Validate password length
     if (strlen($password) < 8) {
         echo json_encode(['error' => 'Password must be at least 8 characters']);
+        exit;
+    }
+
+    // Validate password maximum length (prevent DoS via bcrypt)
+    if (strlen($password) > 72) {
+        echo json_encode(['error' => 'Password must be 72 characters or less']);
         exit;
     }
 
@@ -454,6 +466,12 @@ if ($action === 'forgot-password') {
     // Validate email format
     if (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         echo json_encode(['error' => 'Invalid email address']);
+        exit;
+    }
+
+    // Validate email length (database limit is 255)
+    if (strlen($email) > 255) {
+        echo json_encode(['error' => 'Email address is too long']);
         exit;
     }
 

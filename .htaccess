@@ -1,0 +1,94 @@
+# ==============================================================================
+# CHAINOFDOTS - ROOT SECURITY HEADERS
+# ==============================================================================
+# Security headers for public-facing pages (index.html, about.html, etc.)
+# API endpoints have separate headers in app/api/.htaccess
+
+# ------------------------------------------------------------------------------
+# CLICKJACKING PROTECTION
+# ------------------------------------------------------------------------------
+# Prevents site from being loaded in iframes (clickjacking attacks)
+Header always set X-Frame-Options "DENY"
+
+# ------------------------------------------------------------------------------
+# XSS PROTECTION
+# ------------------------------------------------------------------------------
+# Enables browser's built-in XSS filter (legacy, but doesn't hurt)
+Header always set X-XSS-Protection "1; mode=block"
+
+# ------------------------------------------------------------------------------
+# MIME SNIFFING PROTECTION
+# ------------------------------------------------------------------------------
+# Prevents browsers from MIME-sniffing content types
+Header always set X-Content-Type-Options "nosniff"
+
+# ------------------------------------------------------------------------------
+# REFERRER POLICY
+# ------------------------------------------------------------------------------
+# Only send full URL to same-origin, send origin only to cross-origin HTTPS
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# ------------------------------------------------------------------------------
+# CONTENT SECURITY POLICY (CSP)
+# ------------------------------------------------------------------------------
+# Allows: self, Tailwind CDN, Umami analytics, inline styles (for Tailwind)
+#
+# Script sources:
+#   - 'self': Your own scripts (app-init.js)
+#   - 'unsafe-inline': Required for inline scripts (mobile menu, etc.)
+#   - cdn.tailwindcss.com: Tailwind CSS framework
+#   - cloud.umami.is: Privacy-focused analytics (opt-in)
+#
+# Style sources:
+#   - 'self': Your own stylesheets
+#   - 'unsafe-inline': Required for Tailwind inline styles
+#
+# Connect sources:
+#   - 'self': AJAX requests to your API
+#   - cloud.umami.is: Analytics data collection
+#
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.tailwindcss.com https://cloud.umami.is; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' https://cloud.umami.is; font-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'self'"
+
+# ------------------------------------------------------------------------------
+# PERMISSIONS POLICY (formerly Feature-Policy)
+# ------------------------------------------------------------------------------
+# Disable browser features that aren't needed (privacy & security)
+Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+
+# ------------------------------------------------------------------------------
+# FORCE HTTPS (Optional - uncomment if you have SSL certificate)
+# ------------------------------------------------------------------------------
+# Tells browsers to always use HTTPS for 1 year (31536000 seconds)
+# IMPORTANT: Only uncomment this once SSL is working!
+# Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains"
+
+# ------------------------------------------------------------------------------
+# DIRECTORY BROWSING
+# ------------------------------------------------------------------------------
+# Disable directory listing
+Options -Indexes
+
+# ------------------------------------------------------------------------------
+# FILE ACCESS PROTECTION
+# ------------------------------------------------------------------------------
+# Prevent access to sensitive files
+<FilesMatch "^\.">
+    Require all denied
+</FilesMatch>
+
+# Protect git files
+<FilesMatch "^\.git">
+    Require all denied
+</FilesMatch>
+
+# Protect environment and config files
+<FilesMatch "\.(env|log|sql|md|gitignore)$">
+    Require all denied
+</FilesMatch>
+
+# ------------------------------------------------------------------------------
+# ERROR PAGES (Optional - customize as needed)
+# ------------------------------------------------------------------------------
+# ErrorDocument 404 /404.html
+# ErrorDocument 403 /403.html
+# ErrorDocument 500 /500.html

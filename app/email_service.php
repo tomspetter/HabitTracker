@@ -152,7 +152,7 @@ function sendVerificationCodeEmail($email, $verificationCode) {
             </div>
         </div>
         <div class="footer">
-            <p>&copy; ' . date('Y') . ' ' . APP_NAME . ' • <a href="' . APP_URL . '">Visit Website</a></p>
+            <p>&copy; ' . date('Y') . ' ' . APP_NAME . ' • <a href="' . APP_URL . '">Visit Website</a> • <a href="https://chainofdots.com/privacy.html">Privacy Policy</a></p>
         </div>
     </div>
 </body>
@@ -164,7 +164,9 @@ function sendVerificationCodeEmail($email, $verificationCode) {
         . "This code will expire in 15 minutes.\n\n"
         . "If you didn't create this account, you can safely ignore this email.\n\n"
         . "Best regards,\n"
-        . APP_NAME . " Team";
+        . APP_NAME . " Team\n\n"
+        . "---\n"
+        . "Privacy Policy: https://chainofdots.com/privacy.html";
 
     return sendEmail($email, '', 'Verify your ' . APP_NAME . ' account', $htmlContent, $textContent);
 }
@@ -211,7 +213,7 @@ function sendPasswordResetEmail($email, $resetCode) {
             </div>
         </div>
         <div class="footer">
-            <p>&copy; ' . date('Y') . ' ' . APP_NAME . ' • <a href="' . APP_URL . '">Visit Website</a></p>
+            <p>&copy; ' . date('Y') . ' ' . APP_NAME . ' • <a href="' . APP_URL . '">Visit Website</a> • <a href="https://chainofdots.com/privacy.html">Privacy Policy</a></p>
         </div>
     </div>
 </body>
@@ -224,7 +226,9 @@ function sendPasswordResetEmail($email, $resetCode) {
         . "This code will expire in 15 minutes.\n\n"
         . "If you didn't request this password reset, please ignore this email and ensure your account is secure.\n\n"
         . "Best regards,\n"
-        . APP_NAME . " Team";
+        . APP_NAME . " Team\n\n"
+        . "---\n"
+        . "Privacy Policy: https://chainofdots.com/privacy.html";
 
     return sendEmail($email, '', 'Reset your ' . APP_NAME . ' password', $htmlContent, $textContent);
 }

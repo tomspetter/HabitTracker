@@ -13,6 +13,15 @@ require_once __DIR__ . '/../config.php';
 
 header('Content-Type: application/json');
 
+// Prevent abuse via large payloads (limit to 1MB)
+$maxPayloadSize = 1024 * 1024; // 1MB
+$contentLength = isset($_SERVER['CONTENT_LENGTH']) ? (int)$_SERVER['CONTENT_LENGTH'] : 0;
+if ($contentLength > $maxPayloadSize) {
+    http_response_code(413);
+    echo json_encode(['success' => false, 'error' => 'Request payload too large']);
+    exit;
+}
+
 // CSRF Token validation function
 function validateCSRFToken($token) {
     if (!isset($_SESSION['csrf_token'])) {
@@ -135,6 +144,26 @@ if ($action === 'save') {
         exit;
     }
 
+    // Limit number of habits to prevent abuse (app supports 6 habits max)
+    if (count($habits) > 10) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Too many habits (maximum 10 allowed)']);
+        exit;
+    }
+
+    // Limit total habit data entries to prevent abuse
+    $totalEntries = 0;
+    foreach ($habitData as $entries) {
+        if (is_array($entries)) {
+            $totalEntries += count($entries);
+        }
+    }
+    if ($totalEntries > 5000) {
+        http_response_code(400);
+        echo json_encode(['success' => false, 'error' => 'Too many habit entries (maximum 5000 allowed)']);
+        exit;
+    }
+
     try {
         $pdo = getDBConnection();
         $pdo->beginTransaction();
@@ -166,6 +195,22 @@ if ($action === 'save') {
 
             if (empty($habitName)) {
                 continue; // Skip empty habit names
+            }
+
+            // Validate habit name length (reasonable limit before encryption)
+            if (strlen($habitName) > 500) {
+                $pdo->rollBack();
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Habit name is too long (max 500 characters)']);
+                exit;
+            }
+
+            // Validate color format (prevent injection, max 20 chars per schema)
+            if (strlen($color) > 20) {
+                $pdo->rollBack();
+                http_response_code(400);
+                echo json_encode(['success' => false, 'error' => 'Invalid color value']);
+                exit;
             }
 
             // ENCRYPT THE HABIT NAME
